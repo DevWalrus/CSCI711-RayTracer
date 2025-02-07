@@ -1,4 +1,6 @@
-﻿using RayTracer.Objects;
+﻿using MathNet.Numerics.LinearAlgebra.Double;
+using RayTracer.Utils;
+using RayTracer.Objects;
 using System.Reflection;
 
 namespace RayTracer.Tests
@@ -17,7 +19,7 @@ namespace RayTracer.Tests
             }
         }
 
-        public static bool Test_Sphere_GivenInFront_WhenIntersecionIsCalculated_ThenThereShouldBeAnIntersection()
+        public static bool Test_Sphere_InFront_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -30,7 +32,7 @@ namespace RayTracer.Tests
             return returnedColor != null;
         }
 
-        public static bool Test_Sphere_GivenLookingAway_WhenIntersecionIsCalculated_ThenThereShouldBeNoIntersection()
+        public static bool Test_Sphere_LookingAway_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(0, 1, 0).Normalize());
@@ -43,7 +45,7 @@ namespace RayTracer.Tests
             return returnedColor == null;
         }
 
-        public static bool Test_Sphere_GivenRayOnTop_WhenIntersecionIsCalculated_ThenThereShouldBeAnIntersection()
+        public static bool Test_Sphere_RayOnTop_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -56,7 +58,7 @@ namespace RayTracer.Tests
             return returnedColor != null;
         }
 
-        public static bool Test_Sphere_GivenRayAbove_WhenIntersecionIsCalculated_ThenThereShouldBeNoIntersection()
+        public static bool Test_Sphere_RayAbove_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -69,7 +71,7 @@ namespace RayTracer.Tests
             return returnedColor == null;
         }
 
-        public static bool Test_Tri_GivenInFront_WhenIntersecionIsCalculated_ThenThereShouldBeAnIntersection()
+        public static bool Test_Tri_InFront_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -82,7 +84,7 @@ namespace RayTracer.Tests
             return returnedColor != null;
         }
 
-        public static bool Test_Tri_GivenLookingAway_WhenIntersecionIsCalculated_ThenThereShouldBeNoIntersection()
+        public static bool Test_Tri_LookingAway_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(0, 1, 0).Normalize());
@@ -95,7 +97,7 @@ namespace RayTracer.Tests
             return returnedColor == null;
         }
 
-        public static bool Test_Tri_GivenRayOnTop_WhenIntersecionIsCalculated_ThenThereShouldBeNoIntersection()
+        public static bool Test_Tri_RayOnTop_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -108,7 +110,7 @@ namespace RayTracer.Tests
             return returnedColor != null;
         }
 
-        public static bool Test_Tri_GivenRayBelow_WhenIntersecionIsCalculated_ThenThereShouldBeNoIntersection()
+        public static bool Test_Tri_RayBelow_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
@@ -119,6 +121,51 @@ namespace RayTracer.Tests
 
             // Then
             return returnedColor == null;
+        }
+
+        public static bool Test_ViewMatrix_AtOrigin_LookingForward()
+        {
+            // Given & When
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0));
+
+            // Then
+            return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
+            {
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
+                { 0, 0, 0, 1 }
+            });
+        }
+
+        public static bool Test_ViewMatrix_AtOrigin_LookingStraightUp()
+        {
+            // Given & When
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 1, 0), new MyVector(0, 0, 1));
+
+            // Then
+            return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
+            {
+                { 1,  0, 0, 0 },
+                { 0,  0, 1, 0 },
+                { 0, -1, 0, 0 },
+                { 0,  0, 0, 1 }
+            });
+        }
+
+        public static bool Test_ViewMatrix_At_5_5_5_LookingAtOrigin()
+        {
+            // Given & When
+            var camera = new Camera(new Point(5, 5, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            // Then
+            return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
+            {
+                {   0.707,  0.000, -0.707,  0.000 },
+                {  -0.408,  0.816, -0.408,  0.000 },
+                {   0.577,  0.577,  0.577, -8.660 },
+                {   0.000,  0.000,  0.000,  1.000 }
+            }, 1e-3);
         }
     }
 }
