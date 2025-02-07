@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra;
 using RayTracer.Objects;
 using System.Numerics;
 
@@ -25,7 +25,16 @@ namespace RayTracer
 
         public void Spawn(Ray ray)
         {
+            // todo: make rays return value, need closest intersection
 
+            foreach (RenderableObject obj in _objectList)
+            {
+                var intersection = obj.Intersect(ray);
+                if (intersection != null)
+                {
+                    Console.WriteLine(intersection);
+                }
+            }
         }
     }
 }

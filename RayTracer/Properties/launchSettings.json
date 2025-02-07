@@ -1,8 +1,11 @@
 {
   "profiles": {
-    "RayTracer": {
+    "RayTracer (Tests)": {
       "commandName": "Project",
       "commandLineArgs": "-t"
+    },
+    "RayTracer": {
+      "commandName": "Project"
     }
   }
 }

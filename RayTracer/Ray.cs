@@ -9,16 +9,36 @@ namespace RayTracer
 {
     public class Color
     {
-        private double _r;
-        private double _g;
-        private double _b;
+        public double R;
+        public double G;
+        public double B;
 
         public Color(double r, double g, double b)
         {
-            _r = r;
-            _g = g;
-            _b = b;
+            R = r;
+            G = g;
+            B = b;
         }
+
+        public override string ToString()
+        {
+            return $"R: {R}, G: {G}, B: {B}";
+        }
+
+        public override bool Equals(object? obj) => (obj is Color other) && Equals(other);
+
+        public bool Equals(Color other)
+        {
+            return Math.Abs(R - other.R) < 1e-6 &&
+                Math.Abs(G - other.G) < 1e-6 &&
+                Math.Abs(B - other.B) < 1e-6;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 
     public class Point

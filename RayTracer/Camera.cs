@@ -37,7 +37,13 @@ namespace RayTracer
 
         public void render(World world)
         {
-
+            world.TransformAllObjects(ViewMatrix);
+            world.Spawn(new Ray(Position, new MyVector(Lookat.X, Lookat.Y, Lookat.Z)));
+            world.Spawn(new Ray(Position, new MyVector(5, 5, Lookat.Z).Normalize()));
+            // genereate rays
+            // spawn rays
+            // get colors
+            // make image
         }
     }
 }

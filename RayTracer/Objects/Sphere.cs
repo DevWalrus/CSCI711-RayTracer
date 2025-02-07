@@ -17,7 +17,7 @@ namespace RayTracer.Objects
         }
 
         /// <inheritdoc/>
-        public override Color? Intersect(Ray ray)
+        public override Interseciton? Intersect(Ray ray, double minIntersection = 0)
         {
             var originToCenter = ray.origin.Subtract(_center);
 
@@ -29,7 +29,29 @@ namespace RayTracer.Objects
 
             if (disc < 0) return null; // No intersections
 
-            return material;
+            var sqrt_disc = Math.Sqrt(disc);
+            var hit1 = (-b - sqrt_disc) / (2 * a);
+            var hit2 = (-b + sqrt_disc) / (2 * a);
+
+            if (Math.Abs(hit1 - hit2) > 1e-6)
+            {
+                var minHit = Math.Min(hit1, hit2);
+                var maxHit = Math.Max(hit1, hit2);
+                if (minHit >= minIntersection)
+                {
+                    return new Interseciton(minHit, material);
+                }
+                else if (maxHit >= minIntersection)
+                {
+                    return new Interseciton(maxHit, material);
+                }
+            }
+            else if (hit1 >= minIntersection) // The points are the same (hitting an edge of the sphere), only check one point
+            {
+                return new Interseciton(hit1, material);
+            }
+
+            return null;
         }
 
         public override void Transform(Matrix<double> m)

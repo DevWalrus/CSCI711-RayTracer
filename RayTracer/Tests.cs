@@ -3,11 +3,18 @@ using RayTracer.Utils;
 using RayTracer.Objects;
 using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.VisualBasic;
 
 namespace RayTracer.Tests
 {
     public static class TestRunner
     {
+        private static readonly string NORMAL = Console.IsOutputRedirected ? "" : "\x1b[39m";
+        private static readonly string RED = Console.IsOutputRedirected ? "" : "\x1b[91m";
+        private static readonly string GREEN = Console.IsOutputRedirected ? "" : "\x1b[92m";
+
+        private static readonly Color white = new Color(1, 1, 1);
+
         public static void RunAllTests()
         {
             var testMethods = typeof(TestRunner).GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -16,7 +23,7 @@ namespace RayTracer.Tests
             foreach (var method in testMethods)
             {
                 bool result = (bool)method.Invoke(null, null)!;
-                Console.WriteLine($"{method.Name}: {(result ? "Passed" : "Failed")}");
+                Console.WriteLine($"{method.Name}: {(result ? $"{GREEN}Passed{NORMAL}" : $"{RED}Failed{NORMAL}")}");
             }
         }
 
@@ -24,104 +31,130 @@ namespace RayTracer.Tests
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var sphere = new Sphere(new Point(5, 0, 0), 2, new Color(1, 1, 1));
+            var sphere = new Sphere(new Point(5, 0, 0), 2, white);
             
             // When
-            var returnedColor = sphere.Intersect(ray);
+            var intersection = sphere.Intersect(ray);
 
             // Then
-            return returnedColor != null;
+            return intersection?.Equals(new Interseciton(3, white)) ?? false;
+        }
+
+        public static bool Test_Sphere_InFront_Intersection_MinIntersection()
+        {
+            // Given
+            var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
+            var sphere = new Sphere(new Point(5, 0, 0), 2, white);
+
+            // When
+            var intersection = sphere.Intersect(ray, 5);
+            
+            // Then
+            return intersection?.Equals(new Interseciton(7, white)) ?? false;
         }
 
         public static bool Test_Sphere_LookingAway_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(0, 1, 0).Normalize());
-            var sphere = new Sphere(new Point(5, 0, 0), 2, new Color(1, 1, 1));
+            var sphere = new Sphere(new Point(5, 0, 0), 2, white);
 
             // When
-            var returnedColor = sphere.Intersect(ray);
+            var intersection = sphere.Intersect(ray);
 
             // Then
-            return returnedColor == null;
+            return intersection == null;
         }
 
         public static bool Test_Sphere_RayOnTop_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var sphere = new Sphere(new Point(5, -2, 0), 2, new Color(1, 1, 1));
+            var sphere = new Sphere(new Point(5, -2, 0), 2, white);
 
             // When
-            var returnedColor = sphere.Intersect(ray);
+            var intersection = sphere.Intersect(ray);
 
             // Then
-            return returnedColor != null;
+            return intersection?.Equals(new Interseciton(5, white)) ?? false;
         }
 
         public static bool Test_Sphere_RayAbove_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var sphere = new Sphere(new Point(5, -3, 0), 2, new Color(1, 1, 1));
+            var sphere = new Sphere(new Point(5, -3, 0), 2, white);
 
             // When
-            var returnedColor = sphere.Intersect(ray);
+            var intersection = sphere.Intersect(ray);
 
             // Then
-            return returnedColor == null;
+            return intersection == null;
         }
 
         public static bool Test_Tri_InFront_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, 1), new Point(5, 0, -1)], new MyVector(0, 0, 0), new Color(1, 1, 1));
+            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], new MyVector(0, 0, 0), white);
 
             // When
-            var returnedColor = triangle.Intersect(ray);
+            var intersection = triangle.Intersect(ray);
 
             // Then
-            return returnedColor != null;
+            return intersection?.Equals(new Interseciton(5, white)) ?? false;
+        }
+
+        public static bool Test_Tri_InFront_Intersection_MinIntersecton()
+        {
+            // Given
+            var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
+            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], new MyVector(0, 0, 0), white);
+
+            // When
+            var intersection = triangle.Intersect(ray, 6);
+
+            // Then
+            return intersection == null;
         }
 
         public static bool Test_Tri_LookingAway_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(0, 1, 0).Normalize());
-            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, 1), new Point(5, 0, -1)], new MyVector(0, 0, 0), new Color(1, 1, 1));
+            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], new MyVector(0, 0, 0), white);
 
             // When
-            var returnedColor = triangle.Intersect(ray);
+            var intersection = triangle.Intersect(ray);
 
             // Then
-            return returnedColor == null;
+            return intersection == null;
         }
 
         public static bool Test_Tri_RayOnTop_Intersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, 1), new Point(5, 0, 0)], new MyVector(0, 0, 0), new Color(1, 1, 1));
+            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], new MyVector(0, 0, 0), white);
 
             // When
-            var returnedColor = triangle.Intersect(ray);
+            var intersection = triangle.Intersect(ray);
 
             // Then
-            return returnedColor != null;
+            return intersection?.Equals(new Interseciton(5, white)) ?? false;
         }
 
         public static bool Test_Tri_RayBelow_NoIntersection()
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, 1), new Point(5, 0, 0.5)], new MyVector(0, 0, 0), new Color(1, 1, 1));
+            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, 1), new Point(5, 0, 0.5)], new MyVector(0, 0, 0), white);
 
             // When
-            var returnedColor = triangle.Intersect(ray);
+            var intersection = triangle.Intersect(ray);
 
             // Then
-            return returnedColor == null;
+            return intersection == null;
         }
 
         public static bool Test_ViewMatrix_AtOrigin_LookingForward()

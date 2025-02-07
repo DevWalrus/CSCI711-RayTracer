@@ -11,7 +11,7 @@ namespace RayTracer.Objects
             this.material = material;
         }
 
-        public abstract Color? Intersect(Ray ray);
+        public abstract Interseciton? Intersect(Ray ray, double minIntersection = 0);
         public abstract void Transform(Matrix<double> m);
     }
 }

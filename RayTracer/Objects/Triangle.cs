@@ -18,7 +18,7 @@ namespace RayTracer.Objects
         }
 
         /// <inheritdoc/>
-        public override Color? Intersect(Ray ray)
+        public override Interseciton? Intersect(Ray ray, double minIntersection = 0)
         {
             var e1 = _verticies[1].Subtract(_verticies[0]);
             var e2 = _verticies[2].Subtract(_verticies[0]);
@@ -32,7 +32,7 @@ namespace RayTracer.Objects
             var t = ray.origin.Subtract(_verticies[0]);
             var q = t.Cross(e1);
 
-            var omega = q.Dot(e1) / denom;
+            var omega = q.Dot(e2) / denom;
 
             if (omega < 0) return null; // intersection point is behind ray origin
 
@@ -41,7 +41,12 @@ namespace RayTracer.Objects
 
             if ((u < 0) || (v < 0) || (u + v) > 1) return null; // intersection point is outside of triangle
 
-            return material;
+            if (omega >= minIntersection)
+            {
+                return new Interseciton(omega, material);
+            }
+
+            return null;
         }
 
         public override void Transform(Matrix<double> transformationMatrix)
