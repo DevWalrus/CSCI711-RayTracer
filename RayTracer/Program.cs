@@ -1,11 +1,15 @@
-﻿namespace RayTracer
+﻿using RayTracer.Tests;
+
+namespace RayTracer
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            Ray ray = new Ray()
-            Console.WriteLine("Hello, World!");
+            var argSet = new HashSet<string>(args);
+
+            if (argSet.Contains("-t") || argSet.Contains("--test"))
+                TestRunner.RunAllTests();
         }
     }
 }

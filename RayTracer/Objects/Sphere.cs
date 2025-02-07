@@ -1,6 +1,6 @@
 ﻿namespace RayTracer.Objects
 {
-    abstract class Sphere : RenderableObject
+    public class Sphere : RenderableObject
     {
         private Point _center;
         private float _radius;

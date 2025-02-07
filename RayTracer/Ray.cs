@@ -1,10 +1,11 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace RayTracer
 {
-    class Color
+    public class Color
     {
         private double _r;
         private double _g;
@@ -18,7 +19,7 @@ namespace RayTracer
         }
     }
 
-    class Point
+    public class Point
     {
         public double x;
         public double y;
@@ -33,7 +34,7 @@ namespace RayTracer
 
         public MyVector Subtract(Point otherP)
         {
-            return new MyVector(otherP.x - x, otherP.y - y, otherP.z - z);
+            return new MyVector(x - otherP.x, y - otherP.y, z - otherP.z);
         }
 
         public double Distance(Point otherP)
@@ -42,17 +43,19 @@ namespace RayTracer
         }
     }
 
-    class MyVector
+    public class MyVector
     {
+
         private static VectorBuilder<double> V = Vector<double>.Build;
         
-        public UnitVector3D vector;
+        public Vector3D vector;
 
-        public MyVector(double x, double y, double z) : this(Vector3D.OfVector(V.Dense([x, y, z])).Normalize()) { }
+        public MyVector(double x, double y, double z) 
+        {
+            this.vector = Vector3D.OfVector(V.Dense([x, y, z]));
+        }
 
-        private MyVector(Vector3D vector) : this(vector.Normalize()) { }
-
-        private MyVector(UnitVector3D vector)
+        private MyVector(Vector3D vector)
         {
             this.vector = vector;
         }
@@ -91,15 +94,38 @@ namespace RayTracer
         {
             return new MyVector(vector.TransformBy(m));
         }
+
+        public MyVector Normalize()
+        {
+            vector = vector.Normalize().ToVector3D();
+            return this;
+        }
+
+        public double X()
+        {
+            return vector.X;
+        }
+
+        public double Y()
+        {
+            return vector.Y;
+        }
+
+        public double Z()
+        {
+            return vector.Z;
+        }
     }
 
-
-
-    internal class Ray
+    public class Ray
     {
         public Point origin;
         public MyVector direction;
 
-
+        public Ray(Point origin, MyVector direction)
+        {
+            this.origin = origin;
+            this.direction = direction;
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace RayTracer.Objects
 {
-    abstract class RenderableObject
+    public abstract class RenderableObject
     {
         public Color material;
 
