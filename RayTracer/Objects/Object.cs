@@ -1,4 +1,6 @@
-﻿namespace RayTracer.Objects
+﻿using MathNet.Numerics.LinearAlgebra;
+
+namespace RayTracer.Objects
 {
     public abstract class RenderableObject
     {
@@ -10,5 +12,6 @@
         }
 
         public abstract Color? Intersect(Ray ray);
+        public abstract void Transform(Matrix<double> m);
     }
 }

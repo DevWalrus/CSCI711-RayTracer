@@ -44,7 +44,7 @@ namespace RayTracer.Objects
             return material;
         }
 
-        public void Transform(Matrix<double> transformationMatrix)
+        public override void Transform(Matrix<double> transformationMatrix)
         {
             _verticies[0].Transform(transformationMatrix);
             _verticies[1].Transform(transformationMatrix);

@@ -32,7 +32,7 @@ namespace RayTracer.Objects
             return material;
         }
 
-        public void Transform(Matrix<double> m)
+        public override void Transform(Matrix<double> m)
         {
             _center.Transform(m);
 

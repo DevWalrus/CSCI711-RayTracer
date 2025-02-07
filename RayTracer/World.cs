@@ -1,4 +1,5 @@
-﻿using RayTracer.Objects;
+﻿using MathNet.Numerics.LinearAlgebra;
+using RayTracer.Objects;
 using System.Numerics;
 
 namespace RayTracer
@@ -17,9 +18,9 @@ namespace RayTracer
 
         }
 
-        public void TransformAllObjects()
+        public void TransformAllObjects(Matrix<double> m)
         {
-
+            _objectList.ForEach(o => o.Transform(m));
         }
 
         public void Spawn(Ray ray)
