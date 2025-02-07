@@ -21,25 +21,25 @@ namespace RayTracer
 
     public class Point
     {
-        public double x;
-        public double y;
-        public double z;
+        public double X;
+        public double Y;
+        public double Z;
 
         public Point(double x, double y, double z)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         public MyVector Subtract(Point otherP)
         {
-            return new MyVector(x - otherP.x, y - otherP.y, z - otherP.z);
+            return new MyVector(X - otherP.X, Y - otherP.Y, Z - otherP.Z);
         }
 
         public double Distance(Point otherP)
         {
-            return Math.Sqrt(Math.Pow(otherP.x - x, 2) + Math.Pow(otherP.y - y, 2) + Math.Pow(otherP.z - z, 2));
+            return Math.Sqrt(Math.Pow(otherP.X - X, 2) + Math.Pow(otherP.Y - Y, 2) + Math.Pow(otherP.Z - Z, 2));
         }
     }
 

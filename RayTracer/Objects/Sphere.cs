@@ -3,9 +3,9 @@
     public class Sphere : RenderableObject
     {
         private Point _center;
-        private float _radius;
+        private double _radius;
 
-        public Sphere (Point center, float radius, Color material) : base (material)
+        public Sphere (Point center, double radius, Color material) : base (material)
         {
             _center = center;
             _radius = radius;
