@@ -1,6 +1,8 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Complex;
 using MathNet.Spatial.Euclidean;
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace RayTracer
@@ -21,10 +23,12 @@ namespace RayTracer
 
     public class Point
     {
+        private const double Tolerance = 1e-6; // Adjust precision as needed
+
         public double X;
         public double Y;
         public double Z;
-
+        
         public Point(double x, double y, double z)
         {
             this.X = x;
@@ -40,6 +44,32 @@ namespace RayTracer
         public double Distance(Point otherP)
         {
             return Math.Sqrt(Math.Pow(otherP.X - X, 2) + Math.Pow(otherP.Y - Y, 2) + Math.Pow(otherP.Z - Z, 2));
+        }
+
+        public void Transform(Matrix<double> m)
+        {
+            var homogeneousPoint = DenseVector.OfArray([X, Y, Z, 1]);
+
+            var transformed = m.TransformPoint(this);
+
+            X = transformed.X;
+            Y = transformed.Y;
+            Z = transformed.Z;
+        }
+
+        public override string ToString()
+        {
+            return $"X: {X}, Y: {Y}, Z: {Z}";
+        }
+
+        public bool CloseEquals(Point otherP, double tolerance = Tolerance)
+        {
+            return Math.Abs(X - otherP.X) < tolerance && Math.Abs(Y - otherP.Y) < tolerance && Math.Abs(Z - otherP.Z) < tolerance;
+        }
+
+        public bool CloseEquals(double x, double y, double z, double tolerance = Tolerance)
+        {
+            return this.CloseEquals(new Point(x, y, z), tolerance);
         }
     }
 

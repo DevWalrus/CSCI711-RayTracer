@@ -2,6 +2,7 @@
 using RayTracer.Utils;
 using RayTracer.Objects;
 using System.Reflection;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace RayTracer.Tests
 {
@@ -166,6 +167,209 @@ namespace RayTracer.Tests
                 {   0.577,  0.577,  0.577, -8.660 },
                 {   0.000,  0.000,  0.000,  1.000 }
             }, 1e-3);
+        }
+
+        public static bool Test_Point_Transformation_Scaling()
+        {
+            // Given
+            var point = new Point(1, 2, 3);
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 2, 0, 0, 0 },
+                { 0, 2, 0, 0 },
+                { 0, 0, 2, 0 },
+                { 0, 0, 0, 1 }
+            });
+
+            // When
+
+            point.Transform(transformMatrix);
+
+            // Then
+            return point.CloseEquals(2, 4, 6);
+        }
+
+        public static bool Test_Point_Transformation_Translation()
+        {
+            // Given
+            var point = new Point(1, 2, 3);
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 1, 0, 0, 2 },
+                { 0, 1, 0, 2 },
+                { 0, 0, 1, 2 },
+                { 0, 0, 0, 1 }
+            });
+
+            // When
+
+            point.Transform(transformMatrix);
+
+            // Then
+            return point.CloseEquals(3, 4, 5);
+        }
+
+        public static bool Test_Point_Transformation_Rotation_180_X()
+        {
+            // Given
+            var point = new Point(1, 2, 3);
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 1,  0,  0, 0 },
+                { 0, -1,  0, 0 },
+                { 0,  0, -1, 0 },
+                { 0,  0,  0, 1 }
+            });
+
+            // When
+
+            point.Transform(transformMatrix);
+
+            // Then
+            return point.CloseEquals(1, -2, -3);
+        }
+
+        public static bool Test_Point_Transformation_Rotation_90_Y()
+        {
+            // Given
+            var point = new Point(1, 0, 0);
+            double angle = Math.PI / 2; // 90 degrees
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { Math.Cos(angle),  0, Math.Sin(angle), 0 },
+                { 0,                1,               0, 0 },
+                { -Math.Sin(angle), 0, Math.Cos(angle), 0 },
+                { 0,                0,               0, 1 }
+            });
+
+            // When
+
+            point.Transform(transformMatrix);
+
+            // Then
+            return point.CloseEquals(0, 0, -1);
+        }
+
+        public static bool Test_Point_Transformation_Rotation_90_Z()
+        {
+            // Given
+            var point = new Point(1, 0, 0);
+            double angle = Math.PI / 2; // 90 degrees
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { Math.Cos(angle), 0, -Math.Sin(angle), 0 },
+                { Math.Sin(angle), 0,  Math.Cos(angle), 0 },
+                { 0,               0,                1, 0 },
+                { 0,               0,                0, 1 }
+
+            // When
+            });
+
+            point.Transform(transformMatrix);
+
+            // Then
+            return point.CloseEquals(0, 1, 0);
+        }
+
+
+        public static bool Test_Point_Transformation_Combination()
+        {
+            // Given
+            var point = new Point(1, 1, 1);
+
+            // Scaling matrix (scale by 2)
+            Matrix<double> scalingMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 2, 0, 0, 0 },
+                { 0, 2, 0, 0 },
+                { 0, 0, 2, 0 },
+                { 0, 0, 0, 1 }
+            });
+
+            // Rotation matrix (90 degrees around Z-axis)
+            double angle = Math.PI / 2; // 90 degrees
+            Matrix<double> rotationMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { Math.Cos(angle), -Math.Sin(angle), 0, 0 },
+                { Math.Sin(angle),  Math.Cos(angle), 0, 0 },
+                {               0,                0, 1, 0 },
+                {               0,                0, 0, 1 }
+            });
+
+            // Translation matrix (shift by 2,2,2)
+            Matrix<double> translationMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 1, 0, 0, 2 },
+                { 0, 1, 0, 2 },
+                { 0, 0, 1, 2 },
+                { 0, 0, 0, 1 }
+            });
+
+            Matrix<double> finalMatrix = translationMatrix * (rotationMatrix * scalingMatrix);
+
+            // When: Apply scaling (2x), rotation (90° Z), and translation (2,2,2)
+            point.Transform(finalMatrix);
+
+            // Then: Expected (0, 4, 4)
+            return point.CloseEquals(0, 4, 4);
+        }
+
+        public static bool Test_Point_MoveIntoCamSpace()
+        {
+            // Given
+            var point = new Point(1, 2, 3);
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            // When
+            point.Transform(camera.ViewMatrix);
+
+            // Then
+            return point.CloseEquals(1, 2, -2);
+        }
+
+        public static bool Test_Point_MoveIntoComplexCamSpace()
+        {
+            // Given
+            var point = new Point(3, 4, 5);
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            // When
+            point.Transform(camera.ViewMatrix);
+
+            // Then
+            return point.CloseEquals(1.96116135, 2.28768271, -4.23324391);
+        }
+
+        public static bool Test_Tri_MoveIntoCamSpace()
+        {
+            // Given
+            var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), new Color(0, 0, 0));
+
+            // When
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            triangle.Transform(camera.ViewMatrix);
+
+            // Then
+            return triangle.A.CloseEquals(1, 2, -2) &&
+                   triangle.B.CloseEquals(4, 5, 1) &&
+                   triangle.C.CloseEquals(7, 8, 4);
+        }
+
+        public static bool Test_Tri_MoveIntoComplexCamSpace()
+        {
+            // Given
+            var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), new Color(0, 0, 0));
+
+            // When
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            triangle.Transform(camera.ViewMatrix);
+
+            // Then
+            return triangle.A.CloseEquals(0.39223227, 1.03314703, -7.05540651) &&
+                   triangle.B.CloseEquals(2.74562589, 2.91495055, -2.82216261) &&
+                   triangle.C.CloseEquals(5.09901951, 4.79675406,  1.4110813);
         }
     }
 }

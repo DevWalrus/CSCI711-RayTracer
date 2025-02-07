@@ -1,9 +1,15 @@
-﻿namespace RayTracer.Objects
+﻿using MathNet.Numerics.LinearAlgebra;
+
+namespace RayTracer.Objects
 {
     public class Triangle : RenderableObject
     {
         private List<Point> _verticies;
         private MyVector _normal;
+
+        public Point A { get => _verticies[0]; }
+        public Point B { get => _verticies[1]; }
+        public Point C { get => _verticies[2]; }
 
         public Triangle(List<Point> verticies, MyVector normal, Color material) : base(material)
         {
@@ -36,6 +42,13 @@
             if ((u < 0) || (v < 0) || (u + v) > 1) return null; // intersection point is outside of triangle
 
             return material;
+        }
+
+        public void Transform(Matrix<double> transformationMatrix)
+        {
+            _verticies[0].Transform(transformationMatrix);
+            _verticies[1].Transform(transformationMatrix);
+            _verticies[2].Transform(transformationMatrix);
         }
     }
 }
