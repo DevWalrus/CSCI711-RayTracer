@@ -1,6 +1,5 @@
 using MathNet.Numerics.LinearAlgebra;
 using RayTracer.Objects;
-using System.Numerics;
 
 namespace RayTracer
 {
@@ -8,14 +7,17 @@ namespace RayTracer
     {
         public List<RenderableObject> _objectList = new List<RenderableObject>();
 
+        private Point _focalPoint = new Point(0, 0, -1);
+
+        private int _imageWidth = 800;
+        private int _imageHeight = 800;
+
+        private double _filmPlaneWidth = 1;
+        private double _filmPlaneHeight = 1;
+
         public void Add(RenderableObject toAdd)
         {
             _objectList.Add(toAdd);
-        }
-
-        public void Transform(RenderableObject toAdd)
-        {
-
         }
 
         public void TransformAllObjects(Matrix<double> m)
@@ -26,6 +28,8 @@ namespace RayTracer
         public void Spawn(Ray ray)
         {
             // todo: make rays return value, need closest intersection
+
+            var topCorner = new MyVector()
 
             foreach (RenderableObject obj in _objectList)
             {
