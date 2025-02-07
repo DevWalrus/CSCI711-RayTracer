@@ -453,8 +453,6 @@ namespace RayTracer.Tests
             // When
             sphere.Transform(transformMatrix);
 
-            Console.WriteLine(sphere.Center);
-
             // Then
             return sphere.Center.CloseEquals(1, -1, -1) &&
                 sphere.Radius == 2;
