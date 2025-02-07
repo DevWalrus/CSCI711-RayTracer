@@ -344,10 +344,9 @@ namespace RayTracer.Tests
         {
             // Given
             var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), new Color(0, 0, 0));
-
-            // When
             var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
 
+            // When
             triangle.Transform(camera.ViewMatrix);
 
             // Then
@@ -360,16 +359,105 @@ namespace RayTracer.Tests
         {
             // Given
             var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), new Color(0, 0, 0));
-
-            // When
             var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
 
+            // When
             triangle.Transform(camera.ViewMatrix);
 
             // Then
             return triangle.A.CloseEquals(0.39223227, 1.03314703, -7.05540651) &&
                    triangle.B.CloseEquals(2.74562589, 2.91495055, -2.82216261) &&
                    triangle.C.CloseEquals(5.09901951, 4.79675406,  1.4110813);
+        }
+
+        public static bool Test_Sphere_MoveIntoCamSpace()
+        {
+            // Given
+            var sphere = new Sphere(new Point(1, 2, 3), 2, new Color(0, 0, 0));
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            // When
+            sphere.Transform(camera.ViewMatrix);
+
+            // Then
+            return sphere.Center.CloseEquals(1, 2, -2) &&
+                sphere.Radius == 2;
+        }
+
+        public static bool Test_Sphere_MoveIntoComplexCamSpace()
+        {
+            // Given
+            var sphere = new Sphere(new Point(1, 1, 1), 2, new Color(0, 0, 0));
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+
+            // When
+            sphere.Transform(camera.ViewMatrix);
+
+            // Then
+            return sphere.Center.CloseEquals(0.78446454, 0.62726784, -9.21906451) &&
+                sphere.Radius == 2;
+        }
+
+        public static bool Test_Sphere_Scaled()
+        {
+            // Given
+            var sphere = new Sphere(new Point(1, 1, 1), 2, new Color(0, 0, 0));
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 2, 0, 0, 0 },
+                { 0, 2, 0, 0 },
+                { 0, 0, 2, 0 },
+                { 0, 0, 0, 1 }
+            });
+
+            // When
+            sphere.Transform(transformMatrix);
+
+            // Then
+            return sphere.Center.CloseEquals(2, 2, 2) &&
+                sphere.Radius == 4;
+        }
+
+        public static bool Test_Sphere_Translated()
+        {
+            // Given
+            var sphere = new Sphere(new Point(1, 1, 1), 2, new Color(0, 0, 0));
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 1, 0, 0, 2 },
+                { 0, 1, 0, 2 },
+                { 0, 0, 1, 2 },
+                { 0, 0, 0, 1 }
+            });
+
+            // When
+            sphere.Transform(transformMatrix);
+
+            // Then
+            return sphere.Center.CloseEquals(3, 3, 3) &&
+                sphere.Radius == 2;
+        }
+
+        public static bool Test_Sphere_Rotated_180_X()
+        {
+            // Given
+            var sphere = new Sphere(new Point(1, 1, 1), 2, new Color(0, 0, 0));
+            Matrix<double> transformMatrix = DenseMatrix.OfArray(new double[,]
+            {
+                { 1,  0,  0, 0 },
+                { 0, -1,  0, 0 },
+                { 0,  0, -1, 0 },
+                { 0,  0,  0, 1 }
+            });
+
+            // When
+            sphere.Transform(transformMatrix);
+
+            Console.WriteLine(sphere.Center);
+
+            // Then
+            return sphere.Center.CloseEquals(1, -1, -1) &&
+                sphere.Radius == 2;
         }
     }
 }
