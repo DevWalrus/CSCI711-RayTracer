@@ -19,10 +19,10 @@ namespace RayTracer.Objects
         /// <inheritdoc/>
         public override Interseciton? Intersect(Ray ray, double minIntersection = 0)
         {
-            var originToCenter = ray.origin.Subtract(_center);
+            var originToCenter = ray.Origin.Subtract(_center);
 
-            var a = ray.direction.SelfDot();
-            var b = 2 * originToCenter.Dot(ray.direction);
+            var a = ray.Direction.SelfDot();
+            var b = 2 * originToCenter.Dot(ray.Direction);
             var c = originToCenter.SelfDot() - Math.Pow(_radius, 2);
 
             var disc = Math.Pow(b, 2) - (4 * a * c);

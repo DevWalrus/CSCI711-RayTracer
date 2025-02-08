@@ -1,9 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Complex;
 using MathNet.Spatial.Euclidean;
-using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace RayTracer
 {
@@ -37,6 +34,15 @@ namespace RayTracer
         public override int GetHashCode()
         {
             throw new NotImplementedException();
+        }
+
+        public System.Drawing.Color ToSystemColor()
+        {
+            var r = (int)(R * 255);
+            var g = (int)(G * 255);
+            var b = (int)(B * 255);
+            var sysC = System.Drawing.Color.FromArgb(r, g, b);
+            return sysC;
         }
 
     }
@@ -99,6 +105,9 @@ namespace RayTracer
         private static VectorBuilder<double> V = Vector<double>.Build;
         
         public Vector3D vector;
+        public double X { get => vector.X; }
+        public double Y { get => vector.Y; }
+        public double Z { get => vector.Z; }
 
         public MyVector(double x, double y, double z) 
         {
@@ -151,31 +160,26 @@ namespace RayTracer
             return this;
         }
 
-        public double X()
+        public override string ToString()
         {
-            return vector.X;
-        }
-
-        public double Y()
-        {
-            return vector.Y;
-        }
-
-        public double Z()
-        {
-            return vector.Z;
+            return $"X: {X}, Y: {Y}, Z: {Z}";
         }
     }
 
     public class Ray
     {
-        public Point origin;
-        public MyVector direction;
+        public Point Origin;
+        public MyVector Direction;
 
         public Ray(Point origin, MyVector direction)
         {
-            this.origin = origin;
-            this.direction = direction;
+            Origin = origin;
+            Direction = direction;
+        }
+
+        public override string ToString()
+        {
+            return $"Origin: {Origin}, Direction: {Direction}";
         }
     }
 }

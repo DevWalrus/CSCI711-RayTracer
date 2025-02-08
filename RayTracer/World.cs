@@ -7,14 +7,6 @@ namespace RayTracer
     {
         public List<RenderableObject> _objectList = new List<RenderableObject>();
 
-        private Point _focalPoint = new Point(0, 0, -1);
-
-        private int _imageWidth = 800;
-        private int _imageHeight = 800;
-
-        private double _filmPlaneWidth = 1;
-        private double _filmPlaneHeight = 1;
-
         public void Add(RenderableObject toAdd)
         {
             _objectList.Add(toAdd);
@@ -25,20 +17,20 @@ namespace RayTracer
             _objectList.ForEach(o => o.Transform(m));
         }
 
-        public void Spawn(Ray ray)
+        public Interseciton? Spawn(Ray ray)
         {
-            // todo: make rays return value, need closest intersection
-
-            var topCorner = new MyVector()
+            Interseciton? closestIntersection = null;
 
             foreach (RenderableObject obj in _objectList)
             {
                 var intersection = obj.Intersect(ray);
-                if (intersection != null)
+                if (intersection != null && (closestIntersection == null || closestIntersection.Omega > intersection.Omega))
                 {
-                    Console.WriteLine(intersection);
+                    closestIntersection = intersection;
                 }
             }
+
+            return closestIntersection;
         }
     }
 }
