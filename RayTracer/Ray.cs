@@ -101,6 +101,7 @@ namespace RayTracer
 
     public class MyVector
     {
+        private const double Tolerance = 1e-6; // Adjust precision as needed
 
         private static VectorBuilder<double> V = Vector<double>.Build;
         
@@ -160,9 +161,28 @@ namespace RayTracer
             return this;
         }
 
+        public MyVector Reflect(MyVector normal)
+        {
+            var dirNormalized = this.Normalize();
+            normal = normal.Normalize();
+
+            var num = dirNormalized.Dot(normal);
+            var denom = normal.SelfDot();
+
+            var multipicant = 2 * (num / denom);
+
+            var subtract = new MyVector(normal.X * multipicant, normal.Y * multipicant, normal.Z * multipicant);
+            return dirNormalized.Subtract(subtract).Normalize();
+        }
+
         public override string ToString()
         {
             return $"X: {X}, Y: {Y}, Z: {Z}";
+        }
+
+        public bool CloseEquals(MyVector otherV, double tolerance = Tolerance)
+        {
+            return Math.Abs(X - otherV.X) < tolerance && Math.Abs(Y - otherV.Y) < tolerance && Math.Abs(Z - otherV.Z) < tolerance;
         }
     }
 

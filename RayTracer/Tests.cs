@@ -490,5 +490,44 @@ namespace RayTracer.Tests
             return sphere.Center.CloseEquals(1, -1, -1) &&
                 sphere.Radius == 2;
         }
+
+        public static bool Test_Vector_Reflection_ReflectionFromAbove()
+        {
+            // Given
+            var vector = new MyVector(0, -1, 0);
+            var normal = new MyVector(0, 1, 0);
+
+            // When
+            var result = vector.Reflect(normal);
+
+            // Then
+            return result.CloseEquals(new MyVector(0, 1, 0));
+        }
+
+        public static bool Test_Vector_Reflection_ReflectionFromAngleAbove()
+        {
+            // Given
+            var vector = new MyVector(1, -1, 0);
+            var normal = new MyVector(0, 1, 0);
+
+            // When
+            var result = vector.Reflect(normal);
+
+            // Then
+            return result.CloseEquals(new MyVector(0.707107, 0.707107, 0)); // ~(1/sqrt(2), 1/sqrt(2), 0)
+        }
+
+        public static bool Test_Vector_Reflection_ReflectionNonUnit()
+        {
+            // Given
+            var vector = new MyVector(2, 0, 1);
+            var normal = new MyVector(0, 3, 0);
+
+            // When
+            var result = vector.Reflect(normal);
+
+            // Then
+            return result.CloseEquals(new MyVector(0.894427, 0, 0.447214)); // ~(2/sqrt(5), 1/sqrt(5), 0)
+        }
     }
 }
