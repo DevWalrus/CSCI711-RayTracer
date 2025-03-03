@@ -36,6 +36,21 @@ namespace RayTracer
             throw new NotImplementedException();
         }
 
+        public static Color operator *(Color m1, double c)
+        {
+            return new Color(m1.R * c, m1.G * c, m1.B * c);
+        }
+
+        public static Color operator *(double c, Color m1)
+        {
+            return m1 * c;
+        }
+
+        public static Color operator +(Color m1, Color m2)
+        {
+            return new Color(m1.R + m2.R, m1.G + m2.G, m1.B + m2.B);
+        }
+
         public System.Drawing.Color ToSystemColor()
         {
             var r = (int)(R * 255);
@@ -96,6 +111,11 @@ namespace RayTracer
         public bool CloseEquals(double x, double y, double z, double tolerance = Tolerance)
         {
             return this.CloseEquals(new Point(x, y, z), tolerance);
+        }
+
+        public Point Copy()
+        {
+            return new Point(X, Y, Z);
         }
     }
 
@@ -178,6 +198,16 @@ namespace RayTracer
         public override string ToString()
         {
             return $"X: {X}, Y: {Y}, Z: {Z}";
+        }
+
+        public static MyVector operator *(MyVector m1, double c)
+        {
+            return new MyVector(m1.X * c, m1.Y * c, m1.Z * c);
+        }
+
+        public static MyVector operator *(double c, MyVector m1)
+        {
+            return m1 * c;
         }
 
         public bool CloseEquals(MyVector otherV, double tolerance = Tolerance)

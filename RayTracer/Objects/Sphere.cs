@@ -10,14 +10,14 @@ namespace RayTracer.Objects
         public Point Center { get => _center; }
         public double Radius { get => _radius; }
 
-        public Sphere (Point center, double radius, Color material) : base (material)
+        public Sphere (Point center, double radius, Material material) : base (material)
         {
             _center = center;
             _radius = radius;
         }
 
         /// <inheritdoc/>
-        public override Interseciton? Intersect(Ray ray, double minIntersection = 0)
+        public override Intersection? Intersect(Ray ray, double minIntersection = 0)
         {
             var originToCenter = ray.Origin.Subtract(_center);
 
@@ -39,16 +39,34 @@ namespace RayTracer.Objects
                 var maxHit = Math.Max(hit1, hit2);
                 if (minHit >= minIntersection)
                 {
-                    return new Interseciton(minHit, material);
+                    var intersectionPoint = new Point(
+                        ray.Origin.X + ray.Direction.X * minHit,
+                        ray.Origin.Y + ray.Direction.Y * minHit,
+                        ray.Origin.Z + ray.Direction.Z * minHit
+                    );
+
+                    return new Intersection(minHit, intersectionPoint, intersectionPoint.Subtract(_center), material);
                 }
                 else if (maxHit >= minIntersection)
                 {
-                    return new Interseciton(maxHit, material);
+                    var intersectionPoint = new Point(
+                        ray.Origin.X + ray.Direction.X * maxHit,
+                        ray.Origin.Y + ray.Direction.Y * maxHit,
+                        ray.Origin.Z + ray.Direction.Z * maxHit
+                    );
+
+                    return new Intersection(maxHit, intersectionPoint, intersectionPoint.Subtract(_center), material);
                 }
             }
             else if (hit1 >= minIntersection) // The points are the same (hitting an edge of the sphere), only check one point
             {
-                return new Interseciton(hit1, material);
+                var intersectionPoint = new Point(
+                    ray.Origin.X + ray.Direction.X * hit1,
+                    ray.Origin.Y + ray.Direction.Y * hit1,
+                    ray.Origin.Z + ray.Direction.Z * hit1
+                );
+
+                return new Intersection(hit1, intersectionPoint, intersectionPoint.Subtract(_center), material);
             }
 
             return null;

@@ -19,16 +19,45 @@ namespace RayTracer
                 CreateRenderedImage();
         }
 
+        static void CreateRenderedImage2()
+        {
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0));
+
+            var world = new World();
+
+            var lightSource = new LightSource(new Point(0, 10, -10), new Color(0, 0, 0));
+
+            world.Add(lightSource);
+
+            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
+
+            var transparentSphere = new Sphere(new Point(0, 0, -1), 0.5, red);
+
+            world.Add(transparentSphere);
+
+            var bitmap = camera.render(world);
+            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "SingleSphere.ppm", bitmap);
+            using Process fileopener = new Process();
+
+            fileopener.StartInfo.FileName = "explorer";
+            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "SingleSphere.ppm" + "\"";
+            fileopener.Start();
+        }
+
         static void CreateRenderedImage()
         {
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
 
             var world = new World();
 
-            var red = new Color(1, 0, 0);
-            var green = new Color(0, 1, 0);
-            var blue = new Color(0, 0, 1);
-            var orange = new Color(1, 0.65, 0);
+            var lightSource = new LightSource(new Point(0, 10, 0), new Color(0,0,0));
+
+            world.Add(lightSource);
+
+            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
+            var green = new Material(0.1, 0.6, 0.3, 16, new Color(0, 1, 0));
+            var blue = new Material(0.1, 0.6, 0.3, 16, new Color(0, 0, 1));
+            var orange = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0.65, 0));
 
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, red);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, orange);

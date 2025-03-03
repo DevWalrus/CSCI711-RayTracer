@@ -11,14 +11,14 @@ namespace RayTracer.Objects
         public Point B { get => _verticies[1]; }
         public Point C { get => _verticies[2]; }
 
-        public Triangle(List<Point> verticies, MyVector normal, Color material) : base(material)
+        public Triangle(List<Point> verticies, MyVector normal, Material material) : base(material)
         {
             _verticies = verticies;
             _normal = normal;
         }
 
         /// <inheritdoc/>
-        public override Interseciton? Intersect(Ray ray, double minIntersection = 0)
+        public override Intersection? Intersect(Ray ray, double minIntersection = 0)
         {
             var e1 = _verticies[1].Subtract(_verticies[0]);
             var e2 = _verticies[2].Subtract(_verticies[0]);
@@ -43,7 +43,13 @@ namespace RayTracer.Objects
 
             if (omega >= minIntersection)
             {
-                return new Interseciton(omega, material);
+                var intersectionPoint = new Point(
+                    ray.Origin.X + ray.Direction.X * omega,
+                    ray.Origin.Y + ray.Direction.Y * omega,
+                    ray.Origin.Z + ray.Direction.Z * omega
+                );
+
+                return new Intersection(omega, intersectionPoint, _normal, material);
             }
 
             return null;

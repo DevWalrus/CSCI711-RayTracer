@@ -3,13 +3,22 @@ using RayTracer.Objects;
 
 namespace RayTracer
 {
-    internal class World
+    public class World
     {
-        public List<RenderableObject> _objectList = new List<RenderableObject>();
+        private readonly List<RenderableObject> _objectList = [];
+        private readonly List<LightSource> _lightList = [];
+
+        public List<RenderableObject> Objects { get => _objectList; }
+        public List<LightSource> Lights { get => _lightList; }
 
         public void Add(RenderableObject toAdd)
         {
             _objectList.Add(toAdd);
+        }
+
+        public void Add(LightSource toAdd)
+        {
+            _lightList.Add(toAdd);
         }
 
         public void TransformAllObjects(Matrix<double> m)
@@ -17,9 +26,9 @@ namespace RayTracer
             _objectList.ForEach(o => o.Transform(m));
         }
 
-        public Interseciton? Spawn(Ray ray)
+        public Intersection? Spawn(Ray ray)
         {
-            Interseciton? closestIntersection = null;
+            Intersection? closestIntersection = null;
 
             foreach (RenderableObject obj in _objectList)
             {

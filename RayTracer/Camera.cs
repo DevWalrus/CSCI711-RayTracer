@@ -56,42 +56,48 @@ namespace RayTracer
 
             var topLeftPixel = new Point(
                 -(_filmPlaneWidth / 2) + (pixelWidth / 2),
-                (_filmPlaneHeight / 2) - (pixelHeight / 2),
-                _focalDistance);
+                 (_filmPlaneHeight / 2) - (pixelHeight / 2),
+                 _focalDistance
+            );
 
-            var lastPoint = topLeftPixel;
+            var currentPixel = topLeftPixel.Copy();
 
-            int x = 0, y = 0;
-
-            do
+            for (int y = 0; y < _imageHeight; y++)
             {
-                do
+                currentPixel.X = topLeftPixel.X;
+
+                for (int x = 0; x < _imageWidth; x++)
                 {
-
-                    var rayToPixel = new Ray(_cameraCoordsOrigin, lastPoint.Subtract(_cameraCoordsOrigin).Normalize());
-
+                    var direction = currentPixel.Subtract(_cameraCoordsOrigin).Normalize();
+                    var rayToPixel = new Ray(_cameraCoordsOrigin, direction);
                     var intersection = world.Spawn(rayToPixel);
 
                     if (intersection != null)
                     {
-                        bitmap.SetPixel(x, y, intersection.Material.ToSystemColor());
+                        var viewDir = new MyVector(-direction.X, -direction.Y, -direction.Z).Normalize();
+
+                        var shadedColor = intersection.Material.Shade(
+                            intersection.Position,   // Intersection point
+                            intersection.Normal,     // Surface normal
+                            viewDir,                 // Direction from point -> camera
+                            world                    // So it can access lights, etc.
+                        );
+
+                        bitmap.SetPixel(x, y, shadedColor.ToSystemColor());
+                    }
+                    else
+                    {
+                        bitmap.SetPixel(x, y, System.Drawing.Color.Black);
                     }
 
-                    lastPoint = new Point(lastPoint.X + (pixelWidth), lastPoint.Y, lastPoint.Z);
+                    currentPixel.X += pixelWidth;
+                }
 
-                    x++;
-
-                } while (lastPoint.X < (_filmPlaneWidth / 2));
-
-                lastPoint = new Point(topLeftPixel.X, lastPoint.Y - (pixelWidth), lastPoint.Z);
-
-                x = 0;
-                y++;
-
-            } while (lastPoint.Y > -(_filmPlaneHeight / 2));
-
+                currentPixel.Y -= pixelHeight;
+            }
 
             return bitmap;
         }
+
     }
 }
