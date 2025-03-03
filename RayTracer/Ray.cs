@@ -53,9 +53,9 @@ namespace RayTracer
 
         public System.Drawing.Color ToSystemColor()
         {
-            var r = (int)(R * 255);
-            var g = (int)(G * 255);
-            var b = (int)(B * 255);
+            var r = Math.Min((int)(R * 255), 255);
+            var g = Math.Min((int)(G * 255), 255);
+            var b = Math.Min((int)(B * 255), 255);
             var sysC = System.Drawing.Color.FromArgb(r, g, b);
             return sysC;
         }

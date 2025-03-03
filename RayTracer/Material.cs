@@ -32,49 +32,24 @@ namespace RayTracer
         /// <returns>A floating-point Color (R,G,B in [0..1] or higher) representing radiance.</returns>
         public Color Shade(Point position, MyVector normal, MyVector viewDir, World world)
         {
-            // Ensure normal is normalized
             normal = normal.Normalize();
-            // Also normalize the view direction
             viewDir = viewDir.Normalize();
 
-            // Start with ambient contribution (if you have a global ambient or just use object color)
-            // Here we simply multiply baseColor by ka
             Color result = baseColor * ka;
 
-            // For each light in the scene, add diffuse + specular if not in shadow
             foreach (var light in world.Lights)
             {
-                // Vector from intersection to light
                 MyVector toLight = light.Center.Subtract(position).Normalize();
 
-                // Shadow check: spawn a ray toward the light, see if blocked
                 if (!IsInShadow(position, toLight, world, light))
                 {
-                    // --------- Diffuse term ---------
                     double nDotL = Math.Max(0, normal.Dot(toLight));
                     Color diffuse = baseColor * (kd * nDotL);
-
-                    // --------- Specular term ---------
-                    // Reflection of "toLight" about "normal"
-                    // You can use your built-in Reflect if you want the reflection of the LIGHT direction
-                    // R = reflect(L, N) = 2(N·L)N - L. 
-                    // Alternatively, use your MyVector.Reflect(...) if "this" = L and param = normal.
-                    MyVector reflection = toLight.Reflect(normal);  // or do your own reflection math
+                    MyVector reflection = (toLight * -1).Reflect(normal);
                     double rDotV = Math.Max(0, reflection.Dot(viewDir));
                     double specFactor = Math.Pow(rDotV, shininess);
-                    Color specular;
+                    Color specular = light.Color * (ks * specFactor);
 
-                    // Convert light's System.Drawing.Color to your RayTracer.Color (if needed)
-                    // so highlights are tinted by the light color. For example:
-                    Color lightColor = new Color(
-                        light.Color.R / 255.0,
-                        light.Color.G / 255.0,
-                        light.Color.B / 255.0
-                    );
-
-                    specular = lightColor * (ks * specFactor);
-
-                    // --------- Accumulate ---------
                     result += (diffuse + specular);
                 }
             }
@@ -82,12 +57,12 @@ namespace RayTracer
             return result;
         }
 
+
         /// <summary>
         /// Checks if the path from the intersection point to the light is blocked by another object.
         /// </summary>
         private bool IsInShadow(Point position, MyVector toLight, World world, LightSource light)
         {
-            // Small offset to avoid self-intersection
             double epsilon = 1e-5;
             Point shadowRayOrigin = new Point(
                 position.X + toLight.X * epsilon,
@@ -96,17 +71,13 @@ namespace RayTracer
             );
 
             Ray shadowRay = new Ray(shadowRayOrigin, toLight);
-
-            // Distance from intersection to light
             double distToLight = shadowRayOrigin.Distance(light.Center);
 
-            // Test intersection with all objects
             foreach (var obj in world.Objects)
             {
                 var inter = obj.Intersect(shadowRay, 0);
                 if (inter != null && inter.Omega < distToLight)
                 {
-                    // Another object is in the way => in shadow
                     return true;
                 }
             }
