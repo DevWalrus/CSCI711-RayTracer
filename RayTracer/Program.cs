@@ -59,6 +59,40 @@ namespace RayTracer
             var blue = new Material(0.1, 0.6, 0.3, 16, new Color(0, 0, 1));
             var orange = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0.65, 0));
 
+            var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, red);
+            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, orange);
+
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), green);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), blue);
+            world.Add(rightSidePlane);
+            world.Add(leftSidePlane);
+            world.Add(transparentSphere);
+            world.Add(reflectiveSphere);
+
+            var bitmap = camera.render(world);
+            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene.ppm", bitmap);
+            using Process fileopener = new Process();
+
+            fileopener.StartInfo.FileName = "explorer";
+            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "Scene.ppm" + "\"";
+            fileopener.Start();
+        }
+
+        static void CreateRenderedDOFImage()
+        {
+            var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+
+            var world = new World();
+
+            var lightSource = new LightSource(new Point(0, 5, 2.5), new Color(1, 1, 1));
+
+            world.Add(lightSource);
+
+            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
+            var green = new Material(0.1, 0.6, 0.3, 16, new Color(0, 1, 0));
+            var blue = new Material(0.1, 0.6, 0.3, 16, new Color(0, 0, 1));
+            var orange = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0.65, 0));
+
             var transparentSphere = new Sphere(new Point(0, 0.2, -3.3), 0.15, blue);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.3), 0.15, red);
 
