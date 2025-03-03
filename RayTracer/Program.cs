@@ -16,7 +16,7 @@ namespace RayTracer
             if (argSet.Contains("-t") || argSet.Contains("--test"))
                 TestRunner.RunAllTests();
             else
-                CreateRenderedImage();
+                CreateRenderedDOFImage();
         }
 
         static void CreateRenderedImage2()
@@ -105,11 +105,11 @@ namespace RayTracer
             world.Add(reflectiveSphere);
 
             var bitmap = camera.render(world);
-            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene.ppm", bitmap);
+            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene_DOF.ppm", bitmap);
             using Process fileopener = new Process();
 
             fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "Scene.ppm" + "\"";
+            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "Scene_DOF.ppm" + "\"";
             fileopener.Start();
         }
     }
