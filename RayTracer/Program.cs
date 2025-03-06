@@ -69,7 +69,7 @@ namespace RayTracer
             var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
             var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
 
-            var joe = new ImageShader(InputLocation + "joe.jpg", 1);
+            var joe = new ImageShader(InputLocation + "joe.jpg", 0.5);
             var joePhong = new PhongShader(0.1, 0.6, 0.3, 16, joe);
 
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
