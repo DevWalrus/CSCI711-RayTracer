@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿#pragma warning disable CA1416
+using System.Drawing;
 using System.Text;
 
 namespace RayTracer

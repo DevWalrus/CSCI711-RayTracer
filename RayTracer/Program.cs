@@ -7,11 +7,16 @@ namespace RayTracer
 {
     public class Program
     {
-        private static readonly string BaseOutputLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\Output\";
+        //private static readonly string BaseOutputLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\Output\";
+        private static readonly string BaseOutputLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\Output\";
+        private static bool _isParallel = false;
 
         static void Main(string[] args)
         {
             var argSet = new HashSet<string>(args);
+
+            if (argSet.Contains("-p") || argSet.Contains("--parallel"))
+                _isParallel = true;
 
             if (argSet.Contains("-t") || argSet.Contains("--test"))
                 TestRunner.RunAllTests();
@@ -21,7 +26,7 @@ namespace RayTracer
 
         static void CreateRenderedImage2()
         {
-            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
 
             var world = new World();
 
@@ -46,7 +51,7 @@ namespace RayTracer
 
         static void CreateRenderedImage()
         {
-            var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
             var world = new World();
@@ -73,7 +78,10 @@ namespace RayTracer
             world.Add(transparentSphere);
             world.Add(reflectiveSphere);
 
+            Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);
+            sw.Stop();
+            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
             PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene.ppm", bitmap);
             using Process fileopener = new Process();
 
@@ -87,7 +95,7 @@ namespace RayTracer
             foreach (var app in new List<double>{1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22})
             {
                 //Console.WriteLine(app);
-                var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+                var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), false);
                 camera.SetAperture(app);
 
                 var world = new World();

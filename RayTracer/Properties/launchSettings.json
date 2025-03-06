@@ -6,6 +6,10 @@
     },
     "RayTracer": {
       "commandName": "Project"
+    },
+    "RayTracer (Parallel)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p"
     }
   }
 }

@@ -159,7 +159,7 @@ namespace RayTracer.Tests
         public static bool Test_ViewMatrix_AtOrigin_LookingForward()
         {
             // Given & When
-            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0), false);
 
             // Then
             return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
@@ -174,7 +174,7 @@ namespace RayTracer.Tests
         public static bool Test_ViewMatrix_AtOrigin_LookingStraightUp()
         {
             // Given & When
-            var camera = new Camera(new Point(0, 0, 0), new Point(0, 1, 0), new MyVector(0, 0, 1));
+            var camera = new Camera(new Point(0, 0, 0), new Point(0, 1, 0), new MyVector(0, 0, 1), false);
 
             // Then
             return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
@@ -189,7 +189,7 @@ namespace RayTracer.Tests
         public static bool Test_ViewMatrix_At_5_5_5_LookingAtOrigin()
         {
             // Given & When
-            var camera = new Camera(new Point(5, 5, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(5, 5, 5), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // Then
             return MatrixComparer.AreEqual(camera.ViewMatrix.ToArray(), new double[,]
@@ -350,7 +350,7 @@ namespace RayTracer.Tests
         {
             // Given
             var point = new Point(1, 2, 3);
-            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             point.Transform(camera.ViewMatrix);
@@ -363,7 +363,7 @@ namespace RayTracer.Tests
         {
             // Given
             var point = new Point(3, 4, 5);
-            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             point.Transform(camera.ViewMatrix);
@@ -376,7 +376,7 @@ namespace RayTracer.Tests
         {
             // Given
             var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), white);
-            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             triangle.Transform(camera.ViewMatrix);
@@ -391,7 +391,7 @@ namespace RayTracer.Tests
         {
             // Given
             var triangle = new Triangle([new Point(1, 2, 3), new Point(4, 5, 6), new Point(7, 8, 9)], new MyVector(0, 0, 0), white);
-            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             triangle.Transform(camera.ViewMatrix);
@@ -406,7 +406,7 @@ namespace RayTracer.Tests
         {
             // Given
             var sphere = new Sphere(new Point(1, 2, 3), 2, white);
-            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(0, 0, 5), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             sphere.Transform(camera.ViewMatrix);
@@ -420,7 +420,7 @@ namespace RayTracer.Tests
         {
             // Given
             var sphere = new Sphere(new Point(1, 1, 1), 2, white);
-            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0));
+            var camera = new Camera(new Point(2, 3, 10), new Point(0, 0, 0), new MyVector(0, 1, 0), false);
 
             // When
             sphere.Transform(camera.ViewMatrix);
