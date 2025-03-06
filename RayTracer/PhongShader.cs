@@ -5,37 +5,32 @@ namespace RayTracer
     /// <summary>
     /// Simple Phong-like material storing reflection coefficients, shininess, and a base color.
     /// </summary>
-    public class Material
+    public class PhongShader : IMaterial
     {
-        public double ka;        // Ambient coefficient
-        public double kd;        // Diffuse coefficient
-        public double ks;        // Specular coefficient
-        public double shininess; // Shininess exponent
-        public Color baseColor;  // Base color (albedo)
+        public double _ka;
+        public double _kd;
+        public double _ks;
+        public double _shininess;
+        public IMaterial _baseShader;
 
-        public Material(double ka, double kd, double ks, double shininess, Color baseColor)
+        public PhongShader(double ka, double kd, double ks, double shininess, IMaterial baseShader)
         {
-            this.ka = ka;
-            this.kd = kd;
-            this.ks = ks;
-            this.shininess = shininess;
-            this.baseColor = baseColor;
+            _ka = ka;
+            _kd = kd;
+            _ks = ks;
+            _shininess = shininess;
+            _baseShader = baseShader;
         }
 
-        /// <summary>
-        /// Calculates the Phong-like shading at the given intersection.
-        /// </summary>
-        /// <param name="position">Intersection point in world space.</param>
-        /// <param name="normal">Surface normal at the intersection.</param>
-        /// <param name="viewDir">Direction from the intersection point back toward the camera.</param>
-        /// <param name="world">Scene data (objects, lights) for shadows, etc.</param>
-        /// <returns>A floating-point Color (R,G,B in [0..1] or higher) representing radiance.</returns>
+        /// <inheritdoc/>>
         public Color Shade(Point position, MyVector normal, MyVector viewDir, World world)
         {
+            var baseColor = _baseShader.Shade(position, normal, viewDir, world);
+
             normal = normal.Normalize();
             viewDir = viewDir.Normalize();
 
-            Color result = baseColor * ka;
+            Color result = baseColor * _ka;
 
             foreach (var light in world.Lights)
             {
@@ -44,11 +39,11 @@ namespace RayTracer
                 if (!IsInShadow(position, toLight, world, light))
                 {
                     double nDotL = Math.Max(0, normal.Dot(toLight));
-                    Color diffuse = baseColor * (kd * nDotL);
+                    Color diffuse = baseColor * (_kd * nDotL);
                     MyVector reflection = (toLight * -1).Reflect(normal);
                     double rDotV = Math.Max(0, reflection.Dot(viewDir));
-                    double specFactor = Math.Pow(rDotV, shininess);
-                    Color specular = light.Color * (ks * specFactor);
+                    double specFactor = Math.Pow(rDotV, _shininess);
+                    Color specular = light.Color * (_ks * specFactor);
 
                     result += (diffuse + specular);
                 }

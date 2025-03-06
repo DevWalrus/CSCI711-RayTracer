@@ -16,7 +16,7 @@ namespace RayTracer
             if (argSet.Contains("-t") || argSet.Contains("--test"))
                 TestRunner.RunAllTests();
             else
-                CreateRenderedDOFImage();
+                CreateRenderedImage();
         }
 
         static void CreateRenderedImage2()
@@ -29,7 +29,7 @@ namespace RayTracer
 
             world.Add(lightSource);
 
-            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
+            var red = new ColorShader(new Color(1, 0, 0));
 
             var transparentSphere = new Sphere(new Point(0, 0, -1), 0.5, red);
 
@@ -47,6 +47,7 @@ namespace RayTracer
         static void CreateRenderedImage()
         {
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+            camera.SetPinhole();
 
             var world = new World();
 
@@ -54,16 +55,19 @@ namespace RayTracer
 
             world.Add(lightSource);
 
-            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
-            var green = new Material(0.1, 0.6, 0.3, 16, new Color(0, 1, 0));
-            var blue = new Material(0.1, 0.6, 0.3, 16, new Color(0, 0, 1));
-            var orange = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0.65, 0));
+            var green = new ColorShader(new Color(0, 1, 0));
+            var blue = new ColorShader(new Color(0, 0, 1));
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+            var bluePhong = new PhongShader(0.1, 0.6, 0.3, 16, blue);
+            var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
+            var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
 
-            var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, red);
-            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, orange);
+            var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
+            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), green);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), blue);
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+            
             world.Add(rightSidePlane);
             world.Add(leftSidePlane);
             world.Add(transparentSphere);
@@ -80,37 +84,45 @@ namespace RayTracer
 
         static void CreateRenderedDOFImage()
         {
-            var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+            foreach (var app in new List<double>{1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22})
+            {
+                //Console.WriteLine(app);
+                var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0));
+                camera.SetAperture(app);
 
-            var world = new World();
+                var world = new World();
 
-            var lightSource = new LightSource(new Point(0, 5, 2.5), new Color(1, 1, 1));
+                var lightSource = new LightSource(new Point(0, 5, 2.5), new Color(1, 1, 1));
 
-            world.Add(lightSource);
+                world.Add(lightSource);
 
-            var red = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0, 0));
-            var green = new Material(0.1, 0.6, 0.3, 16, new Color(0, 1, 0));
-            var blue = new Material(0.1, 0.6, 0.3, 16, new Color(0, 0, 1));
-            var orange = new Material(0.1, 0.6, 0.3, 16, new Color(1, 0.65, 0));
+                var green = new ColorShader(new Color(0, 1, 0));
+                var blue = new ColorShader(new Color(0, 1, 0));
+                var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+                var bluePhong = new PhongShader(0.1, 0.6, 0.3, 16, blue);
+                var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
+                var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
 
-            var transparentSphere = new Sphere(new Point(0, 0.2, -3.3), 0.15, blue);
-            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.3), 0.15, red);
+                var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
+                var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 1, 0), green);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 1, 0), green);
+                var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+                var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
 
-            world.Add(rightSidePlane);
-            world.Add(leftSidePlane);
-            world.Add(transparentSphere);
-            world.Add(reflectiveSphere);
+                world.Add(rightSidePlane);
+                world.Add(leftSidePlane);
+                world.Add(transparentSphere);
+                world.Add(reflectiveSphere);
 
-            var bitmap = camera.render(world);
-            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene_DOF.ppm", bitmap);
-            using Process fileopener = new Process();
+                var bitmap = camera.render(world);
+                var f_name = $"Scene_DOF_{app.ToString().Replace(".", "_")}.ppm";
+                PPMWriter.WriteBitmapToPPM(BaseOutputLocation + f_name, bitmap);
+                //using Process fileopener = new Process();
 
-            fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "Scene_DOF.ppm" + "\"";
-            fileopener.Start();
+                //fileopener.StartInfo.FileName = "explorer";
+                //fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + f_name + "\"";
+                //fileopener.Start();
+            }
         }
     }
 }

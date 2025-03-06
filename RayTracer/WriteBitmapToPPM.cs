@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text;
 
 namespace RayTracer
 {
@@ -7,22 +8,22 @@ namespace RayTracer
         public static void WriteBitmapToPPM(string file, Bitmap bitmap)
         {
             //Use a streamwriter to write the text part of the encoding
-            var writer = new StreamWriter(file);
-            writer.WriteLine("P6");
-            writer.WriteLine($"{bitmap.Width}  {bitmap.Height}");
-            writer.WriteLine("255");
-            writer.Close();
+            string header = $"P6\n{bitmap.Width} {bitmap.Height}\n255\n";
+            File.WriteAllBytes(file, Encoding.ASCII.GetBytes(header));
             //Switch to a binary writer to write the data
-            var writerB = new BinaryWriter(new FileStream(file, FileMode.Append));
-            for (int x = 0; x < bitmap.Height; x++)
-                for (int y = 0; y < bitmap.Width; y++)
+            using (var fs = new FileStream(file, FileMode.Append))
+            {
+                for (int y = 0; y < bitmap.Height; y++)
                 {
-                    System.Drawing.Color color = bitmap.GetPixel(y, x);
-                    writerB.Write(color.R);
-                    writerB.Write(color.G);
-                    writerB.Write(color.B);
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        System.Drawing.Color color = bitmap.GetPixel(x, y);
+                        fs.WriteByte(color.R);
+                        fs.WriteByte(color.G);
+                        fs.WriteByte(color.B);
+                    }
                 }
-            writerB.Close();
+            }
         }
     }
 }
