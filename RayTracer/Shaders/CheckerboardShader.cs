@@ -1,7 +1,7 @@
 ﻿using RayTracer.Objects;
 using System.Drawing;
 
-namespace RayTracer
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// Implements a checkerboard material shader that alternates between two colors based on the intersection point.
@@ -20,9 +20,9 @@ namespace RayTracer
         /// <param name="squareSize">The size of each checker square in world units.</param>
         public CheckerboardShader(Color color1, Color color2, double squareSize = 1.0)
         {
-            this._color1 = color1;
-            this._color2 = color2;
-            this._squareSize = squareSize;
+            _color1 = color1;
+            _color2 = color2;
+            _squareSize = squareSize;
         }
 
         /// <inheritdoc/>>
@@ -34,7 +34,7 @@ namespace RayTracer
             int uCell = (int)Math.Floor(u);
             int vCell = (int)Math.Floor(v);
 
-            bool isEvenCell = ((uCell + vCell) % 2 == 0);
+            bool isEvenCell = (uCell + vCell) % 2 == 0;
             return isEvenCell ? _color1 : _color2;
         }
     }

@@ -1,6 +1,6 @@
 ﻿using RayTracer.Objects;
 
-namespace RayTracer
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// Simple color.

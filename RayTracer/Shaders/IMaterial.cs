@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 
-namespace RayTracer
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// Defines the contract for material shading in the ray tracing engine.

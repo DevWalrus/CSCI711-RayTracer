@@ -4,6 +4,7 @@ using RayTracer.Objects;
 using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.VisualBasic;
+using RayTracer.Shaders;
 
 namespace RayTracer.Tests
 {

@@ -1,7 +1,7 @@
 ﻿#pragma warning disable CA1416
 using System.Drawing;
 
-namespace RayTracer
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// Implements a checkerboard material shader that alternates between two colors based on the intersection point.
@@ -25,8 +25,8 @@ namespace RayTracer
         /// <inheritdoc/>>
         public Color Shade(ShadingContext shading, World world)
         {
-            double u = (shading.LocalPosition.X / _scale) % 1.0;
-            double v = (shading.LocalPosition.Z / _scale) % 1.0;
+            double u = shading.LocalPosition.X / _scale % 1.0;
+            double v = shading.LocalPosition.Z / _scale % 1.0;
 
             if (u < 0) u += 1.0;
             if (v < 0) v += 1.0;

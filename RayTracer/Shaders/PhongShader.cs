@@ -1,6 +1,6 @@
 ﻿using RayTracer.Objects;
 
-namespace RayTracer
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// Simple Phong-like material storing reflection coefficients, shininess, and a base color.
@@ -45,7 +45,7 @@ namespace RayTracer
                     double specFactor = Math.Pow(rDotV, _shininess);
                     Color specular = light.Color * (_ks * specFactor);
 
-                    result += (diffuse + specular);
+                    result += diffuse + specular;
                 }
             }
 

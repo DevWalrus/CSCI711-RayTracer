@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using RayTracer.Shaders;
 
 namespace RayTracer
 {
