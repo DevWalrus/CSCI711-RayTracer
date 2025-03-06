@@ -23,20 +23,20 @@ namespace RayTracer
         }
 
         /// <inheritdoc/>>
-        public Color Shade(Point position, MyVector normal, MyVector viewDir, World world)
+        public Color Shade(ShadingContext shading, World world)
         {
-            var baseColor = _baseShader.Shade(position, normal, viewDir, world);
+            var baseColor = _baseShader.Shade(shading, world);
 
-            normal = normal.Normalize();
-            viewDir = viewDir.Normalize();
+            var normal = shading.Normal.Normalize();
+            var viewDir = shading.ViewDirection.Normalize();
 
             Color result = baseColor * _ka;
 
             foreach (var light in world.Lights)
             {
-                MyVector toLight = light.Center.Subtract(position).Normalize();
+                MyVector toLight = light.Center.Subtract(shading.WorldPosition).Normalize();
 
-                if (!IsInShadow(position, toLight, world, light))
+                if (!IsInShadow(shading.WorldPosition, toLight, world, light))
                 {
                     double nDotL = Math.Max(0, normal.Dot(toLight));
                     Color diffuse = baseColor * (_kd * nDotL);

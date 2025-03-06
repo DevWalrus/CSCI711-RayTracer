@@ -15,7 +15,7 @@ namespace RayTracer
         }
 
         /// <inheritdoc/>
-        public Color Shade(Point position, MyVector normal, MyVector viewDir, World world)
+        public Color Shade(ShadingContext shading, World world)
         {
             return baseColor;
         }

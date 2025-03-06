@@ -26,10 +26,10 @@ namespace RayTracer
         }
 
         /// <inheritdoc/>>
-        public Color Shade(Point position, MyVector normal, MyVector viewDir, World world)
+        public Color Shade(ShadingContext shading, World world)
         {
-            double u = position.X / _squareSize;
-            double v = position.Z / _squareSize;
+            double u = shading.LocalPosition.X / _squareSize;
+            double v = shading.LocalPosition.Z / _squareSize;
 
             int uCell = (int)Math.Floor(u);
             int vCell = (int)Math.Floor(v);

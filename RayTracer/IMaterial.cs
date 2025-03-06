@@ -1,4 +1,6 @@
-﻿namespace RayTracer
+﻿using MathNet.Numerics.LinearAlgebra;
+
+namespace RayTracer
 {
     /// <summary>
     /// Defines the contract for material shading in the ray tracing engine.
@@ -23,6 +25,6 @@
         /// components are typically in a floating-point format, allowing for values outside the standard [0, 1] range
         /// to accommodate high dynamic range rendering.
         /// </returns>
-        public Color Shade(Point position, MyVector normal, MyVector viewDir, World world);
+        public Color Shade(ShadingContext shading, World world);
     }
 }

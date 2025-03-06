@@ -7,8 +7,10 @@ namespace RayTracer
 {
     public class Program
     {
-        //private static readonly string BaseOutputLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\Output\";
-        private static readonly string BaseOutputLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\Output\";
+        private static readonly string BaseLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\";
+        //private static readonly string OutputLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\";
+        private static readonly string OutputLocation = BaseLocation + @"Output\";
+        private static readonly string InputLocation = BaseLocation + @"Input\";
         private static bool _isParallel = false;
 
         static void Main(string[] args)
@@ -41,11 +43,11 @@ namespace RayTracer
             world.Add(transparentSphere);
 
             var bitmap = camera.render(world);
-            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "SingleSphere.ppm", bitmap);
+            PPMWriter.WriteBitmapToPPM(OutputLocation + "SingleSphere.ppm", bitmap);
             using Process fileopener = new Process();
 
             fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "SingleSphere.ppm" + "\"";
+            fileopener.StartInfo.Arguments = "\"" + OutputLocation + "SingleSphere.ppm" + "\"";
             fileopener.Start();
         }
 
@@ -67,11 +69,14 @@ namespace RayTracer
             var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
             var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
 
+            var joe = new ImageShader(InputLocation + "joe.jpg", 1);
+            var joePhong = new PhongShader(0.1, 0.6, 0.3, 16, joe);
+
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), joePhong);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), joePhong);
             
             world.Add(rightSidePlane);
             world.Add(leftSidePlane);
@@ -82,11 +87,11 @@ namespace RayTracer
             var bitmap = camera.render(world);
             sw.Stop();
             Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
-            PPMWriter.WriteBitmapToPPM(BaseOutputLocation + "Scene.ppm", bitmap);
+            PPMWriter.WriteBitmapToPPM(OutputLocation + "Scene.ppm", bitmap);
             using Process fileopener = new Process();
 
             fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + BaseOutputLocation + "Scene.ppm" + "\"";
+            fileopener.StartInfo.Arguments = "\"" + OutputLocation + "Scene.ppm" + "\"";
             fileopener.Start();
         }
 
@@ -124,7 +129,7 @@ namespace RayTracer
 
                 var bitmap = camera.render(world);
                 var f_name = $"Scene_DOF_{app.ToString().Replace(".", "_")}.ppm";
-                PPMWriter.WriteBitmapToPPM(BaseOutputLocation + f_name, bitmap);
+                PPMWriter.WriteBitmapToPPM(OutputLocation + f_name, bitmap);
                 //using Process fileopener = new Process();
 
                 //fileopener.StartInfo.FileName = "explorer";

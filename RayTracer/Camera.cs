@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CA1416
+using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Drawing;
@@ -12,6 +13,7 @@ namespace RayTracer
         public Point Lookat;
         public MyVector Up;
         public Matrix<double> ViewMatrix;
+        public Matrix<double> CamToWorld;
 
         private double _focalDistance = -1.0;
 
@@ -35,6 +37,7 @@ namespace RayTracer
             Lookat = lookAt;
             Up = up.Normalize();
             ViewMatrix = ComputeViewMatrix();
+            CamToWorld = ViewMatrix.Inverse();
             _parallel = parallel;
         }
 
@@ -119,12 +122,17 @@ namespace RayTracer
                 if (intersection != null)
                 {
                     var viewDir = new MyVector(-newRayDir.X, -newRayDir.Y, -newRayDir.Z).Normalize();
-                    accumulatedColor = accumulatedColor + intersection.Material.Shade(
-                        intersection.Position,
-                        intersection.Normal,
-                        viewDir,
-                        world
-                    );
+                    var localPoint = intersection.Position.Copy();
+                    localPoint.Transform(CamToWorld);
+
+                    var shadingInfo = new ShadingContext
+                    {
+                        WorldPosition = intersection.Position,
+                        LocalPosition = localPoint,
+                        Normal = intersection.Normal,
+                        ViewDirection = viewDir
+                    };
+                    accumulatedColor = accumulatedColor + intersection.Material.Shade(shadingInfo, world);
                 }
 
                 accumulatedColor = accumulatedColor + new Color(0, 0, 0);
