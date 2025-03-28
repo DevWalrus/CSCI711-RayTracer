@@ -2,14 +2,15 @@
 using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 
 namespace RayTracer
 {
     public class Program
     {
-        private static readonly string BaseLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\";
-        //private static readonly string OutputLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\";
+        //private static readonly string BaseLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\";
+        private static readonly string BaseLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\";
         private static readonly string OutputLocation = BaseLocation + @"Output\";
         private static readonly string InputLocation = BaseLocation + @"Input\";
         private static bool _isParallel = false;
@@ -67,14 +68,18 @@ namespace RayTracer
             var blue = new ColorShader(new Color(0, 0, 1));
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
             var bluePhong = new PhongShader(0.1, 0.6, 0.3, 16, blue);
-            var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
-            var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
+            //var floor = new NoisyCheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1, 0.5);
+            //var floor = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
+            //var floor = new BrickShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.25, 0.5, 0.1);
+            //var floor = new ImageShader(InputLocation + "joe.jpg", 0.5);
+            var floor = new MandelbrotShader(0.5, 0.5, -0.1, -1, 100, 270);
+            var floorPhong = new PhongShader(0.1, 0.6, 0.3, 16, floor);
 
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), floorPhong);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), floorPhong);
             
             world.Add(rightSidePlane);
             world.Add(leftSidePlane);
