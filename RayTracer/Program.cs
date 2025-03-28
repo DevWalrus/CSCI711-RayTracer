@@ -1,4 +1,5 @@
 ﻿using RayTracer.Objects;
+using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
 using System.IO;
@@ -69,22 +70,11 @@ namespace RayTracer
             var checkerboard = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
             var checkerboardPhong = new PhongShader(0.1, 0.6, 0.3, 16, checkerboard);
 
-            var madelbrot = new MandelbrotShader(
-                scaleX: 0.5,
-                scaleY: 0.5,
-                offsetX: -0.1,
-                offsetY: -1,
-                maxIterations: 100,
-                rotationDegrees: 270
-            );
-
-            var madelbrotPhong = new PhongShader(0.1, 0.6, 0.3, 16, madelbrot);
-
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), madelbrotPhong);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), madelbrotPhong);
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
             
             world.Add(rightSidePlane);
             world.Add(leftSidePlane);

@@ -2,6 +2,7 @@
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using RayTracer.Shaders;
 using System.Drawing;
 using System.Numerics;
 
