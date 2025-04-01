@@ -5,15 +5,24 @@ namespace RayTracer.Shaders
     /// <summary>
     /// Simple Phong-like material storing reflection coefficients, shininess, and a base color.
     /// </summary>
-    public class PhongShader : IMaterial
+    public class PhongShader : Material
     {
         public double _ka;
         public double _kd;
         public double _ks;
         public double _shininess;
-        public IMaterial _baseShader;
+        public Material _baseShader;
 
-        public PhongShader(double ka, double kd, double ks, double shininess, IMaterial baseShader)
+        public PhongShader(
+            double ka, 
+            double kd, 
+            double ks, 
+            double shininess, 
+            Material baseShader,
+            double reflectivity = 0,
+            double transparency = 0,
+            double indexOfRefraction = 0
+        ) : base(reflectivity, transparency, indexOfRefraction)
         {
             _ka = ka;
             _kd = kd;
@@ -23,7 +32,7 @@ namespace RayTracer.Shaders
         }
 
         /// <inheritdoc/>>
-        public Color Shade(ShadingContext shading, World world)
+        public override Color Shade(ShadingContext shading, World world)
         {
             var baseColor = _baseShader.Shade(shading, world);
 

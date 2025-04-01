@@ -14,7 +14,7 @@ namespace RayTracer.Tests
         private static readonly string RED = Console.IsOutputRedirected ? "" : "\x1b[91m";
         private static readonly string GREEN = Console.IsOutputRedirected ? "" : "\x1b[92m";
 
-        private static readonly IMaterial white = new ColorShader(new Color(1, 1, 1));
+        private static readonly Material white = new ColorShader(new Color(1, 1, 1));
 
         public static void RunAllTests()
         {

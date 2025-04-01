@@ -8,9 +8,9 @@ namespace RayTracer
         public double Omega { get; }
         public Point Position { get; }
         public MyVector Normal { get; }
-        public IMaterial Material { get; }
+        public Material Material { get; }
 
-        public Intersection(double omega, Point position, MyVector normal, IMaterial material)
+        public Intersection(double omega, Point position, MyVector normal, Material material)
         {
             Omega = omega;
             Position = position;

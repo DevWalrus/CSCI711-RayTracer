@@ -6,7 +6,7 @@ namespace RayTracer.Shaders
     /// <summary>
     /// Implements a checkerboard material shader that alternates between two colors based on the intersection point.
     /// </summary>
-    public class CheckerboardShader : IMaterial
+    public class CheckerboardShader : Material
     {
         private Color _color1 { get; set; }
         private Color _color2 { get; set; }
@@ -18,7 +18,14 @@ namespace RayTracer.Shaders
         /// <param name="color1">The color used for one set of squares in the checkerboard pattern.</param>
         /// <param name="color2">The color used for the alternate set of squares in the checkerboard pattern.</param>
         /// <param name="squareSize">The size of each checker square in world units.</param>
-        public CheckerboardShader(Color color1, Color color2, double squareSize = 1.0)
+        public CheckerboardShader(
+            Color color1, 
+            Color color2, 
+            double squareSize = 1.0,
+            double reflectivity = 0,
+            double transparency = 0,
+            double indexOfRefraction = 0
+        ) : base(reflectivity, transparency, indexOfRefraction)
         {
             _color1 = color1;
             _color2 = color2;
@@ -26,7 +33,7 @@ namespace RayTracer.Shaders
         }
 
         /// <inheritdoc/>>
-        public Color Shade(ShadingContext shading, World world)
+        public override Color Shade(ShadingContext shading, World world)
         {
             double u = shading.LocalPosition.X / _squareSize;
             double v = shading.LocalPosition.Z / _squareSize;

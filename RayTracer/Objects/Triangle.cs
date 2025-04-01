@@ -12,7 +12,7 @@ namespace RayTracer.Objects
         public Point B { get => _verticies[1]; }
         public Point C { get => _verticies[2]; }
 
-        public Triangle(List<Point> verticies, MyVector normal, IMaterial material) : base(material)
+        public Triangle(List<Point> verticies, MyVector normal, Material material) : base(material)
         {
             _verticies = verticies;
             _normal = normal;

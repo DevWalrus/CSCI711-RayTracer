@@ -4,7 +4,7 @@
     /// A shader that renders the Mandelbrot set by mapping an object's local (x,z) coordinates
     /// onto the complex plane and iterating the Mandelbrot formula.
     /// </summary>
-    public class MandelbrotShader : IMaterial
+    public class MandelbrotShader : Material
     {
         private readonly double scaleX;
         private readonly double scaleY;
@@ -19,8 +19,11 @@
             double offsetX,
             double offsetY,
             int maxIterations = 100,
-            double rotationDegrees = 0.0
-        )
+            double rotationDegrees = 0.0,
+            double reflectivity = 0,
+            double transparency = 0,
+            double indexOfRefraction = 0
+        ) : base(reflectivity, transparency, indexOfRefraction)
         {
             this.scaleX = scaleX;
             this.scaleY = scaleY;
@@ -30,7 +33,7 @@
             rotationRadians = rotationDegrees * (Math.PI / 180.0);
         }
 
-        public Color Shade(ShadingContext shading, World world)
+        public override Color Shade(ShadingContext shading, World world)
         {
             double xBase = shading.LocalPosition.X * scaleX + offsetX;
             double zBase = shading.LocalPosition.Z * scaleY + offsetY;

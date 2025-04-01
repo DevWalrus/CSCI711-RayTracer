@@ -2,7 +2,7 @@
 
 namespace RayTracer.Shaders
 {
-    public class BrickShader : IMaterial
+    public class BrickShader : Material
     {
         private Color _mortarColor { get; set; }
         private Color _brickColor { get; set; }
@@ -15,8 +15,11 @@ namespace RayTracer.Shaders
             Color brickColor, 
             double width,
             double height,
-            double mThickness
-        )
+            double mThickness,
+            double reflectivity = 0,
+            double transparency = 0,
+            double indexOfRefraction = 0
+        ) : base(reflectivity, transparency, indexOfRefraction)
         {
             _mortarColor = mortarColor;
             _brickColor = brickColor;
@@ -26,7 +29,7 @@ namespace RayTracer.Shaders
         }
 
         /// <inheritdoc/>>
-        public Color Shade(ShadingContext shading, World world)
+        public override Color Shade(ShadingContext shading, World world)
         {
             var u = shading.LocalPosition.X / _width;
             var v = shading.LocalPosition.Z / _height;

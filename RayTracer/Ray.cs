@@ -195,6 +195,40 @@ namespace RayTracer
             return dirNormalized.Subtract(subtract).Normalize();
         }
 
+        public MyVector? Refract(MyVector normal, double ior)
+        {
+            double cosi = Math.Max(-1.0, Math.Min(1.0, Dot(normal)));
+            double etai = 1.0;
+            double etat = ior;
+            MyVector n = normal;
+
+            if (cosi < 0)
+            {
+                cosi = -cosi;
+            }
+            else
+            {
+                double temp = etai;
+                etai = etat;
+                etat = temp;
+                n = new MyVector(-normal.X, -normal.Y, -normal.Z);
+            }
+
+            double eta = etai / etat;
+            double k = 1 - eta * eta * (1 - cosi * cosi);
+
+            if (k < 0)
+            {
+                return null;
+            }
+            else
+            {
+                MyVector refractedPart = this * eta;
+                MyVector normalPart = n * (eta * cosi - Math.Sqrt(k));
+                return refractedPart.Add(normalPart).Normalize();
+            }
+        }
+
         public override string ToString()
         {
             return $"X: {X}, Y: {Y}, Z: {Z}";

@@ -8,8 +8,19 @@ namespace RayTracer.Shaders
     /// intersection based on the material's properties, the surface geometry, and the lighting conditions present 
     /// in the scene.
     /// </summary>
-    public interface IMaterial
+    public abstract class Material
     {
+        public double Reflectivity { get; }
+        public double Transparency { get; }
+        public double IndexOfRefraction { get; }
+
+        public Material (double reflectivity, double transparency, double indexOfRefection)
+        {
+            Reflectivity = reflectivity;
+            Transparency = transparency;
+            IndexOfRefraction = indexOfRefection;
+        }
+
         /// <summary>
         /// Computes the shaded color at an intersection point on a surface.
         /// </summary>
@@ -25,6 +36,6 @@ namespace RayTracer.Shaders
         /// components are typically in a floating-point format, allowing for values outside the standard [0, 1] range
         /// to accommodate high dynamic range rendering.
         /// </returns>
-        public Color Shade(ShadingContext shading, World world);
+        public abstract Color Shade(ShadingContext shading, World world);
     }
 }

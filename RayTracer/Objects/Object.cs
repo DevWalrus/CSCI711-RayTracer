@@ -5,9 +5,9 @@ namespace RayTracer.Objects
 {
     public abstract class RenderableObject
     {
-        public IMaterial material;
+        public Material material;
 
-        public RenderableObject(IMaterial material)
+        public RenderableObject(Material material)
         {
             this.material = material;
         }

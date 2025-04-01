@@ -11,7 +11,7 @@ namespace RayTracer.Objects
         public Point Center { get => _center; }
         public double Radius { get => _radius; }
 
-        public Sphere (Point center, double radius, IMaterial material) : base (material)
+        public Sphere (Point center, double radius, Material material) : base (material)
         {
             _center = center;
             _radius = radius;

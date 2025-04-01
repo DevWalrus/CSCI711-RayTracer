@@ -10,6 +10,7 @@ namespace RayTracer
 
         public List<RenderableObject> Objects { get => _objectList; }
         public List<LightSource> Lights { get => _lightList; }
+        public Color BackgroundColor = new Color(0, 0, 0);
 
         public void Add(RenderableObject toAdd)
         {
