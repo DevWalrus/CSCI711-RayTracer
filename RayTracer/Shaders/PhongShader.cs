@@ -1,4 +1,5 @@
-﻿using RayTracer.Objects;
+﻿using RayTracer.RayMath;
+using RayTracer.Objects;
 
 namespace RayTracer.Shaders
 {
@@ -31,7 +32,7 @@ namespace RayTracer.Shaders
             _baseShader = baseShader;
         }
 
-        /// <inheritdoc/>>
+        /// <inheritdoc/>
         public override Color Shade(ShadingContext shading, World world)
         {
             var baseColor = _baseShader.Shade(shading, world);
@@ -44,15 +45,15 @@ namespace RayTracer.Shaders
             foreach (var light in world.Lights)
             {
                 MyVector toLight = light.Center.Subtract(shading.WorldPosition).Normalize();
-
-                if (!IsInShadow(shading.WorldPosition, toLight, world, light))
+                double shadowFactor = ShadowAttenuation(shading.WorldPosition, toLight, world, light);
+                if (shadowFactor > 0.0)
                 {
-                    double nDotL = Math.Max(0, normal.Dot(toLight));
-                    Color diffuse = baseColor * (_kd * nDotL);
+                    double nDotL = RayMath.Max(0, normal.Dot(toLight));
+                    Color diffuse = baseColor * (_kd * nDotL * shadowFactor);
                     MyVector reflection = (toLight * -1).Reflect(normal);
-                    double rDotV = Math.Max(0, reflection.Dot(viewDir));
-                    double specFactor = Math.Pow(rDotV, _shininess);
-                    Color specular = light.Color * (_ks * specFactor);
+                    double rDotV = RayMath.Max(0, reflection.Dot(viewDir));
+                    double specFactor = RayMath.Pow(rDotV, _shininess);
+                    Color specular = light.Color * (_ks * specFactor * shadowFactor);
 
                     result += diffuse + specular;
                 }
@@ -61,13 +62,8 @@ namespace RayTracer.Shaders
             return result;
         }
 
-
-        /// <summary>
-        /// Checks if the path from the intersection point to the light is blocked by another object.
-        /// </summary>
-        private bool IsInShadow(Point position, MyVector toLight, World world, LightSource light)
+        private double ShadowAttenuation(Point position, MyVector toLight, World world, LightSource light)
         {
-
             var epsilon = 1e-5;
             var shadowRayOrigin = new Point(
                 position.X + toLight.X * epsilon,
@@ -77,13 +73,31 @@ namespace RayTracer.Shaders
 
             var shadowRay = new Ray(shadowRayOrigin, toLight);
             var distToLight = shadowRayOrigin.Distance(light.Center);
+            double attenuation = 1.0;
 
             if (world.KdTreeRoot != null)
             {
-                var inter = world.KdTreeRoot.Traverse(shadowRay, distToLight);
-                if (inter != null && inter.Omega < distToLight)
+                while (true)
                 {
-                    return true;
+                    var inter = world.KdTreeRoot.Traverse(shadowRay, distToLight);
+                    if (inter != null && inter.Omega < distToLight)
+                    {
+                        attenuation *= inter.Material.Transparency;
+                        if (attenuation < 0.01)
+                            return 0.0;
+                        var offset = inter.Omega + epsilon;
+                        shadowRayOrigin = new Point(
+                            shadowRayOrigin.X + toLight.X * offset,
+                            shadowRayOrigin.Y + toLight.Y * offset,
+                            shadowRayOrigin.Z + toLight.Z * offset
+                        );
+                        shadowRay = new Ray(shadowRayOrigin, toLight);
+                        distToLight -= offset;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
             else
@@ -94,11 +108,13 @@ namespace RayTracer.Shaders
                     var inter = obj.Intersect(shadowRay, 0);
                     if (inter != null && inter.Omega < distToLight)
                     {
-                        return true;
+                        attenuation *= obj.Material.Transparency;
+                        if (attenuation < 0.01)
+                            return 0.0;
                     }
                 }
             }
-            return false;
+            return attenuation;
         }
     }
 }

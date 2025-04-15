@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using RayTracer.RayMath;
 using RayTracer.Shaders;
 
 namespace RayTracer.Objects
@@ -24,20 +25,20 @@ namespace RayTracer.Objects
 
             var a = ray.Direction.SelfDot();
             var b = 2 * originToCenter.Dot(ray.Direction);
-            var c = originToCenter.SelfDot() - Math.Pow(_radius, 2);
+            var c = originToCenter.SelfDot() - RayMath.Pow(_radius, 2);
 
-            var disc = Math.Pow(b, 2) - (4 * a * c);
+            var disc = RayMath.Pow(b, 2) - (4 * a * c);
 
             if (disc < 0) return null; // No intersections
 
-            var sqrt_disc = Math.Sqrt(disc);
+            var sqrt_disc = RayMath.Sqrt(disc);
             var hit1 = (-b - sqrt_disc) / (2 * a);
             var hit2 = (-b + sqrt_disc) / (2 * a);
 
-            if (Math.Abs(hit1 - hit2) > 1e-6)
+            if (RayMath.Abs(hit1 - hit2) > 1e-6)
             {
-                var minHit = Math.Min(hit1, hit2);
-                var maxHit = Math.Max(hit1, hit2);
+                var minHit = RayMath.Min(hit1, hit2);
+                var maxHit = RayMath.Max(hit1, hit2);
                 if (minHit >= minIntersection)
                 {
                     var intersectionPoint = new Point(

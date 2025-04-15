@@ -1,4 +1,5 @@
-﻿using RayTracer.Objects;
+﻿using RayTracer.RayMath;
+using RayTracer.Objects;
 using System.Drawing;
 
 namespace RayTracer.Shaders
@@ -43,8 +44,8 @@ namespace RayTracer.Shaders
             double u = shading.LocalPosition.X / _squareSize;
             double v = shading.LocalPosition.Z / _squareSize;
 
-            int uCell = (int)Math.Floor(u);
-            int vCell = (int)Math.Floor(v);
+            int uCell = (int)RayMath.Floor(u);
+            int vCell = (int)RayMath.Floor(v);
 
             bool isEvenCell = (uCell + vCell) % 2 == 0;
             Color baseColor = isEvenCell ? _color1 : _color2;
@@ -57,9 +58,9 @@ namespace RayTracer.Shaders
             double g = baseColor.G * factor;
             double b = baseColor.B * factor;
 
-            r = Math.Min(Math.Max(r, 0.0), 1.0);
-            g = Math.Min(Math.Max(g, 0.0), 1.0);
-            b = Math.Min(Math.Max(b, 0.0), 1.0);
+            r = RayMath.Min(RayMath.Max(r, 0.0), 1.0);
+            g = RayMath.Min(RayMath.Max(g, 0.0), 1.0);
+            b = RayMath.Min(RayMath.Max(b, 0.0), 1.0);
 
             return new Color(r, g, b);
         }

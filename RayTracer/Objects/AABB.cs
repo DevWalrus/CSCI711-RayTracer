@@ -1,4 +1,6 @@
-﻿namespace RayTracer.Objects
+﻿using RayTracer.RayMath;
+
+namespace RayTracer.Objects
 {
     public class AABB
     {
@@ -41,10 +43,10 @@
             {
                 double tx1 = (Min.X - ray.Origin.X) / ray.Direction.X;
                 double tx2 = (Max.X - ray.Origin.X) / ray.Direction.X;
-                double tMinX = Math.Min(tx1, tx2);
-                double tMaxX = Math.Max(tx1, tx2);
-                tMin = Math.Max(tMin, tMinX);
-                tMax = Math.Min(tMax, tMaxX);
+                double tMinX = RayMath.Min(tx1, tx2);
+                double tMaxX = RayMath.Max(tx1, tx2);
+                tMin = RayMath.Max(tMin, tMinX);
+                tMax = RayMath.Min(tMax, tMaxX);
             }
             else if (ray.Origin.X < Min.X || ray.Origin.X > Max.X)
             {
@@ -56,10 +58,10 @@
             {
                 double ty1 = (Min.Y - ray.Origin.Y) / ray.Direction.Y;
                 double ty2 = (Max.Y - ray.Origin.Y) / ray.Direction.Y;
-                double tMinY = Math.Min(ty1, ty2);
-                double tMaxY = Math.Max(ty1, ty2);
-                tMin = Math.Max(tMin, tMinY);
-                tMax = Math.Min(tMax, tMaxY);
+                double tMinY = RayMath.Min(ty1, ty2);
+                double tMaxY = RayMath.Max(ty1, ty2);
+                tMin = RayMath.Max(tMin, tMinY);
+                tMax = RayMath.Min(tMax, tMaxY);
             }
             else if (ray.Origin.Y < Min.Y || ray.Origin.Y > Max.Y)
             {
@@ -71,10 +73,10 @@
             {
                 double tz1 = (Min.Z - ray.Origin.Z) / ray.Direction.Z;
                 double tz2 = (Max.Z - ray.Origin.Z) / ray.Direction.Z;
-                double tMinZ = Math.Min(tz1, tz2);
-                double tMaxZ = Math.Max(tz1, tz2);
-                tMin = Math.Max(tMin, tMinZ);
-                tMax = Math.Min(tMax, tMaxZ);
+                double tMinZ = RayMath.Min(tz1, tz2);
+                double tMaxZ = RayMath.Max(tz1, tz2);
+                tMin = RayMath.Max(tMin, tMinZ);
+                tMax = RayMath.Min(tMax, tMaxZ);
             }
             else if (ray.Origin.Z < Min.Z || ray.Origin.Z > Max.Z)
             {

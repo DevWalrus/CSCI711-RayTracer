@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using RayTracer;
+using RayTracer.RayMath;
 
 public static class TransformationMatrices
 {

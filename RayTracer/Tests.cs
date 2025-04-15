@@ -3,6 +3,7 @@ using RayTracer.Objects;
 using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
 using RayTracer.Shaders;
+using RayTracer.RayMath;
 
 namespace RayTracer.Tests
 {
@@ -266,7 +267,7 @@ namespace RayTracer.Tests
         {
             // Given
             var point = new Point(1, 2, 3);
-            Matrix<double> transformMatrix = TransformationMatrices.RotateX(Math.PI); // 180 degrees
+            Matrix<double> transformMatrix = TransformationMatrices.RotateX(RayMath.PI); // 180 degrees
 
             // When
 
@@ -280,7 +281,7 @@ namespace RayTracer.Tests
         {
             // Given
             var point = new Point(1, 0, 0);
-            double angle = Math.PI / 2; // 90 degrees
+            double angle = RayMath.PI / 2; // 90 degrees
             Matrix<double> transformMatrix = TransformationMatrices.RotateY(angle);
 
             // When
@@ -295,7 +296,7 @@ namespace RayTracer.Tests
         {
             // Given
             var point = new Point(1, 0, 0);
-            double angle = Math.PI / 2; // 90 degrees
+            double angle = RayMath.PI / 2; // 90 degrees
             Matrix<double> transformMatrix = TransformationMatrices.RotateZ(angle);
 
             // When
@@ -315,7 +316,7 @@ namespace RayTracer.Tests
             Matrix<double> scalingMatrix = TransformationMatrices.LinearScale(2);
 
             // Rotation matrix (90 degrees around Z-axis)
-            double angle = Math.PI / 2; // 90 degrees
+            double angle = RayMath.PI / 2; // 90 degrees
             Matrix<double> rotationMatrix = TransformationMatrices.RotateZ(angle);
 
             // Translation matrix (shift by 2,2,2)
@@ -446,7 +447,7 @@ namespace RayTracer.Tests
         {
             // Given
             var sphere = new Sphere(new Point(1, 1, 1), 2, WHITE_MAT);
-            Matrix<double> transformMatrix = TransformationMatrices.RotateX(Math.PI); // 180 degrees
+            Matrix<double> transformMatrix = TransformationMatrices.RotateX(RayMath.PI); // 180 degrees
 
             // When
             sphere.Transform(transformMatrix);
@@ -705,7 +706,7 @@ namespace RayTracer.Tests
                 {
                     double expectedVal = m1[i, j];
                     double actualVal = m2[i, j];
-                    double diff = Math.Abs(expectedVal - actualVal);
+                    double diff = RayMath.Abs(expectedVal - actualVal);
 
                     // If the difference is greater than the allowed epsilon, record the difference.
                     if (diff > epsilon)

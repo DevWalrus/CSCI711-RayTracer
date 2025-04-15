@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1416
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using RayTracer.RayMath;
 using RayTracer.Shaders;
 using System.Drawing;
 
@@ -149,7 +150,7 @@ namespace RayTracer
                 }
                 else
                 {
-                    var refractDir = (eta * incident + (eta * cosThetaI - (float)Math.Sqrt(k)) * normal).Normalize();
+                    var refractDir = (eta * incident + (eta * cosThetaI - (float)RayMath.Sqrt(k)) * normal).Normalize();
                     var refractOrigin = new Point(
                         intersection.Position.X + refractDir.X * 1e-6,
                         intersection.Position.Y + refractDir.Y * 1e-6,
@@ -197,9 +198,9 @@ namespace RayTracer
 
                 MyVector idealRayDir = pixelCenter.Subtract(_cameraCoordsOrigin).Normalize();
                 Point focalPoint = new Point(
-                    _cameraCoordsOrigin.X + idealRayDir.X * Math.Abs(_focalDistance),
-                    _cameraCoordsOrigin.Y + idealRayDir.Y * Math.Abs(_focalDistance),
-                    _cameraCoordsOrigin.Z + idealRayDir.Z * Math.Abs(_focalDistance)
+                    _cameraCoordsOrigin.X + idealRayDir.X * RayMath.Abs(_focalDistance),
+                    _cameraCoordsOrigin.Y + idealRayDir.Y * RayMath.Abs(_focalDistance),
+                    _cameraCoordsOrigin.Z + idealRayDir.Z * RayMath.Abs(_focalDistance)
                 );
 
                 MyVector newRayDir = focalPoint.Subtract(lensOrigin).Normalize();

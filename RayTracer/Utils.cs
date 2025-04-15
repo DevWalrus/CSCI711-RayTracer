@@ -14,7 +14,7 @@
             {
                 for (int j = 0; j < matrix1.GetLength(1); j++)
                 {
-                    if (Math.Abs(matrix1[i, j] - matrix2[i, j]) > epsilon)
+                    if (RayMath.Abs(matrix1[i, j] - matrix2[i, j]) > epsilon)
                     {
                         return false;
                     }

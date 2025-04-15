@@ -1,4 +1,6 @@
-﻿namespace RayTracer.Shaders
+﻿using RayTracer.RayMath;
+
+namespace RayTracer.Shaders
 {
     public struct ShadingContext
     {

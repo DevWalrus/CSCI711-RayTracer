@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using RayTracer.RayMath;
 
 namespace RayTracer.Shaders
 {
@@ -35,14 +36,14 @@ namespace RayTracer.Shaders
             var v = shading.LocalPosition.Z / _height;
 
             var uu = u / (_width + _mThickness);
-            var vv = Math.Abs(v / (_height + _mThickness));
+            var vv = RayMath.Abs(v / (_height + _mThickness));
 
-            if (uu < 0) uu = Math.Abs(uu) + 1.1;
+            if (uu < 0) uu = RayMath.Abs(uu) + 1.1;
 
             if ((uu * 0.5) % 1 > 0.5) vv += 0.5;
 
-            var ubrick = Math.Floor(uu);
-            var vbrick = Math.Floor(vv);
+            var ubrick = RayMath.Floor(uu);
+            var vbrick = RayMath.Floor(vv);
             uu -= ubrick;
             vv -= vbrick;
 

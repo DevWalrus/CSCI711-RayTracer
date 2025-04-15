@@ -1,4 +1,6 @@
-﻿namespace RayTracer.Shaders
+﻿using RayTracer.RayMath;
+
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// A shader that renders the Mandelbrot set by mapping an object's local (x,z) coordinates
@@ -30,7 +32,7 @@
             this.offsetX = offsetX;
             this.offsetY = offsetY;
             this.maxIterations = maxIterations;
-            rotationRadians = rotationDegrees * (Math.PI / 180.0);
+            rotationRadians = rotationDegrees * (RayMath.PI / 180.0);
         }
 
         public override Color Shade(ShadingContext shading, World world)
@@ -38,8 +40,8 @@
             double xBase = shading.LocalPosition.X * scaleX + offsetX;
             double zBase = shading.LocalPosition.Z * scaleY + offsetY;
 
-            double cosT = Math.Cos(rotationRadians);
-            double sinT = Math.Sin(rotationRadians);
+            double cosT = RayMath.Cos(rotationRadians);
+            double sinT = RayMath.Sin(rotationRadians);
 
             double xRot = xBase * cosT - zBase * sinT;
             double zRot = xBase * sinT + zBase * cosT;

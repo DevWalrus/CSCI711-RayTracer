@@ -1,12 +1,8 @@
-﻿using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
+﻿using RayTracer.RayMath;
 using RayTracer.Objects;
 using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace RayTracer
 {
@@ -78,7 +74,7 @@ namespace RayTracer
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
-            var world = new World(Color.White);
+            var world = new World(Color.SkyBlue);
 
             var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
 
@@ -141,20 +137,9 @@ namespace RayTracer
 
             //world.Add(rightSidePlane);
             //world.Add(leftSidePlane);
-            //var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
+            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
             //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
-            var tet1 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
-            var tet2 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
-            var tet3 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
-            var tet4 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
-            var tet5 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
-            tet2.Transform(TransformationMatrices.Translate(-1, 0, 0));
-            //tet4.Transform(TransformationMatrices.Translate(0.5, 0, 0));
-            tet5.Transform(TransformationMatrices.Translate(1, 0, 0));
-            //bunny.Transform(TransformationMatrices.Translate(-bunny.Center.X, -bunny.Center.Y, -bunny.Center.Z));
-            //bunny.Transform(TransformationMatrices.LinearScale(2));
-            //bunny.Transform(TransformationMatrices.Translate(bunny.Center.X, bunny.Center.Y, bunny.Center.Z));
-            world.Add(tet1).Add(tet2).Add(tet4).Add(tet5);
+            world.Add(bunny);
             Console.WriteLine("Building tree...");
             world.BuildKdTree();
             Console.WriteLine("Built!");
