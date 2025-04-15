@@ -145,6 +145,11 @@ namespace RayTracer
             return new MyVector(vector + otherVector.vector);
         }
 
+        public static MyVector operator +(MyVector m1, MyVector m2)
+        {
+            return m1.Add(m2);
+        }
+
         public MyVector Subtract(MyVector otherVector)
         {
             return new MyVector(vector - otherVector.vector);

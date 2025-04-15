@@ -46,7 +46,7 @@ namespace RayTracer.Objects
                         ray.Origin.Z + ray.Direction.Z * minHit
                     );
 
-                    return new Intersection(minHit, intersectionPoint, intersectionPoint.Subtract(_center), material);
+                    return new Intersection(minHit, intersectionPoint, intersectionPoint.Subtract(_center), Material);
                 }
                 else if (maxHit >= minIntersection)
                 {
@@ -56,7 +56,7 @@ namespace RayTracer.Objects
                         ray.Origin.Z + ray.Direction.Z * maxHit
                     );
 
-                    return new Intersection(maxHit, intersectionPoint, intersectionPoint.Subtract(_center), material);
+                    return new Intersection(maxHit, intersectionPoint, intersectionPoint.Subtract(_center), Material);
                 }
             }
             else if (hit1 >= minIntersection) // The points are the same (hitting an edge of the sphere), only check one point
@@ -67,7 +67,7 @@ namespace RayTracer.Objects
                     ray.Origin.Z + ray.Direction.Z * hit1
                 );
 
-                return new Intersection(hit1, intersectionPoint, intersectionPoint.Subtract(_center), material);
+                return new Intersection(hit1, intersectionPoint, intersectionPoint.Subtract(_center), Material);
             }
 
             return null;

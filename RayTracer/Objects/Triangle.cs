@@ -50,7 +50,7 @@ namespace RayTracer.Objects
                     ray.Origin.Z + ray.Direction.Z * omega
                 );
 
-                return new Intersection(omega, intersectionPoint, _normal, material);
+                return new Intersection(omega, intersectionPoint, _normal, Material);
             }
 
             return null;

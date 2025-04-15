@@ -31,7 +31,7 @@ namespace RayTracer.Shaders
             _baseShader = baseShader;
         }
 
-        /// <inheritdoc/>>
+        /// <inheritdoc/>
         public override Color Shade(ShadingContext shading, World world)
         {
             var baseColor = _baseShader.Shade(shading, world);
@@ -44,15 +44,15 @@ namespace RayTracer.Shaders
             foreach (var light in world.Lights)
             {
                 MyVector toLight = light.Center.Subtract(shading.WorldPosition).Normalize();
-
-                if (!IsInShadow(shading.WorldPosition, toLight, world, light))
+                double shadowFactor = ShadowAttenuation(shading.WorldPosition, toLight, world, light);
+                if (shadowFactor > 0.0)
                 {
                     double nDotL = Math.Max(0, normal.Dot(toLight));
-                    Color diffuse = baseColor * (_kd * nDotL);
+                    Color diffuse = baseColor * (_kd * nDotL * shadowFactor);
                     MyVector reflection = (toLight * -1).Reflect(normal);
                     double rDotV = Math.Max(0, reflection.Dot(viewDir));
                     double specFactor = Math.Pow(rDotV, _shininess);
-                    Color specular = light.Color * (_ks * specFactor);
+                    Color specular = light.Color * (_ks * specFactor * shadowFactor);
 
                     result += diffuse + specular;
                 }
@@ -65,7 +65,7 @@ namespace RayTracer.Shaders
         /// <summary>
         /// Checks if the path from the intersection point to the light is blocked by another object.
         /// </summary>
-        private bool IsInShadow(Point position, MyVector toLight, World world, LightSource light)
+        private double ShadowAttenuation(Point position, MyVector toLight, World world, LightSource light)
         {
             double epsilon = 1e-5;
             Point shadowRayOrigin = new Point(
@@ -76,16 +76,19 @@ namespace RayTracer.Shaders
 
             Ray shadowRay = new Ray(shadowRayOrigin, toLight);
             double distToLight = shadowRayOrigin.Distance(light.Center);
+            double attenuation = 1.0;
 
             foreach (var obj in world.Objects)
             {
                 var inter = obj.Intersect(shadowRay, 0);
                 if (inter != null && inter.Omega < distToLight)
                 {
-                    return true;
+                    attenuation *= obj.Material.Transparency;
+                    if (attenuation < 0.01)
+                        return 0.0;
                 }
             }
-            return false;
+            return attenuation;
         }
     }
 }

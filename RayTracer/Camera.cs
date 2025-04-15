@@ -130,18 +130,15 @@ namespace RayTracer
 
             if (kt > 0.0 && depth < MAX_DEPTH)
             {
-                var refractDir = ray.Direction.Normalize().Refract(intersection.Normal, intersection.Material.IndexOfRefraction);
-                if (refractDir != null)
-                {
-                    var refractOrigin = new Point(
-                        intersection.Position.X + refractDir.X * 1e-6,
-                        intersection.Position.Y + refractDir.Y * 1e-6,
-                        intersection.Position.Z + refractDir.Z * 1e-6
-                    );
-                    var refractionRay = new Ray(refractOrigin, refractDir);
-                    refractionColor = TraceRay(refractionRay, world, depth + 1);
-                }
-                else
+                var incident = ray.Direction.Normalize();
+                bool entering = incident.Dot(intersection.Normal) < 0;
+                var normal = entering ? intersection.Normal : intersection.Normal * -1;
+                var n1 = entering ? 1.0 : intersection.Material.IndexOfRefraction;
+                var n2 = entering ? intersection.Material.IndexOfRefraction : 1.0;
+                var eta = n1 / n2;
+                var cosThetaI = incident.Dot(normal) * -1;
+                var k = 1.0f - eta * eta * (1.0f - cosThetaI * cosThetaI);
+                if (k < 0.0f)
                 {
                     var reflectDir = ray.Direction.Normalize().Reflect(intersection.Normal);
                     var reflectOrigin = new Point(
@@ -150,11 +147,22 @@ namespace RayTracer
                         intersection.Position.Z + reflectDir.Z * 1e-6
                     );
                     var reflectionRay = new Ray(reflectOrigin, reflectDir);
-                    reflectionColor = TraceRay(reflectionRay, world, depth + 1);
+                    refractionColor = TraceRay(reflectionRay, world, depth + 1);
+                }
+                else
+                {
+                    var refractDir = (eta * incident + (eta * cosThetaI - (float)Math.Sqrt(k)) * normal).Normalize();
+                    var refractOrigin = new Point(
+                        intersection.Position.X + refractDir.X * 1e-6,
+                        intersection.Position.Y + refractDir.Y * 1e-6,
+                        intersection.Position.Z + refractDir.Z * 1e-6
+                    );
+                    var refractionRay = new Ray(refractOrigin, refractDir);
+                    refractionColor = TraceRay(refractionRay, world, depth + 1);
                 }
             }
 
-            var finalColor = localColor + (kr * reflectionColor) + (kt * refractionColor);
+            var finalColor = ((1 - kt) * localColor) + (kr * reflectionColor) + (kt * refractionColor);
             return finalColor;
         }
 

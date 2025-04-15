@@ -5,11 +5,11 @@ namespace RayTracer.Objects
 {
     public abstract class RenderableObject
     {
-        public Material material;
+        public Material Material;
 
         public RenderableObject(Material material)
         {
-            this.material = material;
+            this.Material = material;
         }
 
         public abstract Intersection? Intersect(Ray ray, double minIntersection = 0);
