@@ -86,7 +86,7 @@ namespace RayTracer
 
             var green = new ColorShader(Color.Green);
             var silver = new ColorShader(new Color(0.7529, 0.7529, 0.7529));
-            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, indexOfRefraction: 0.95, transparency: 0.8);
             var silverPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, reflectivity: 0.75);
             //var floor = new NoisyCheckerboardShader(Color.Red, Color.Yellow, 0.1, 0.5);
             var floor = new CheckerboardShader(Color.Red, Color.Yellow, 0.1);
@@ -96,7 +96,7 @@ namespace RayTracer
             var floorPhong = new PhongShader(0.1, 0.6, 0.3, 16, floor);
 
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
-            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, silverPhong);
+            var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.525), 0.15, silverPhong);
 
             var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), floorPhong);
             var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), floorPhong);

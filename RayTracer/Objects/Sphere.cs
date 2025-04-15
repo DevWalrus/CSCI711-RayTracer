@@ -5,27 +5,22 @@ namespace RayTracer.Objects
 {
     public class Sphere : RenderableObject
     {
+        private Point _center;
         private double _radius;
+
+        public Point Center { get => _center; }
         public double Radius { get => _radius; }
 
-        public Sphere (
-            Point center, 
-            double radius, 
-            Material material
-        ) : base (
-            material,
-            center, 
-            center.Subtract(radius),
-            center.Add(radius)
-        )
+        public Sphere (Point center, double radius, Material material) : base (material)
         {
+            _center = center;
             _radius = radius;
         }
 
         /// <inheritdoc/>
         public override Intersection? Intersect(Ray ray, double minIntersection = 0)
         {
-            var originToCenter = ray.Origin.Subtract(this.Center);
+            var originToCenter = ray.Origin.Subtract(_center);
 
             var a = ray.Direction.SelfDot();
             var b = 2 * originToCenter.Dot(ray.Direction);
@@ -51,7 +46,7 @@ namespace RayTracer.Objects
                         ray.Origin.Z + ray.Direction.Z * minHit
                     );
 
-                    return new Intersection(minHit, intersectionPoint, intersectionPoint.Subtract(this.Center), Material);
+                    return new Intersection(minHit, intersectionPoint, intersectionPoint.Subtract(_center), Material);
                 }
                 else if (maxHit >= minIntersection)
                 {
@@ -61,7 +56,7 @@ namespace RayTracer.Objects
                         ray.Origin.Z + ray.Direction.Z * maxHit
                     );
 
-                    return new Intersection(maxHit, intersectionPoint, intersectionPoint.Subtract(this.Center), Material);
+                    return new Intersection(maxHit, intersectionPoint, intersectionPoint.Subtract(_center), Material);
                 }
             }
             else if (hit1 >= minIntersection) // The points are the same (hitting an edge of the sphere), only check one point
@@ -72,7 +67,7 @@ namespace RayTracer.Objects
                     ray.Origin.Z + ray.Direction.Z * hit1
                 );
 
-                return new Intersection(hit1, intersectionPoint, intersectionPoint.Subtract(this.Center), Material);
+                return new Intersection(hit1, intersectionPoint, intersectionPoint.Subtract(_center), Material);
             }
 
             return null;
@@ -80,7 +75,7 @@ namespace RayTracer.Objects
 
         public override void Transform(Matrix<double> m)
         {
-            this.Center.Transform(m);
+            _center.Transform(m);
 
             var subMatrix = m.SubMatrix(0, 3, 0, 3);
 
@@ -92,9 +87,6 @@ namespace RayTracer.Objects
             double uniformScale = (scaleX + scaleY + scaleZ) / 3.0;
 
             _radius *= uniformScale;
-
-            this.BBMin = this.Center.Subtract(_radius);
-            this.BBMax = this.Center.Add(_radius);
         }
     }
 }
