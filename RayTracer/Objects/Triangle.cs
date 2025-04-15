@@ -5,14 +5,23 @@ namespace RayTracer.Objects
 {
     public class Triangle : RenderableObject
     {
-        private List<Point> _verticies;
-        private MyVector _normal;
+        private readonly List<Point> _verticies;
+        private readonly MyVector _normal;
 
         public Point A { get => _verticies[0]; }
         public Point B { get => _verticies[1]; }
         public Point C { get => _verticies[2]; }
 
-        public Triangle(List<Point> verticies, MyVector normal, Material material) : base(material)
+        public Triangle(
+            List<Point> verticies, 
+            MyVector normal, 
+            Material material
+        ) : base(
+            material,
+            Point.Center(verticies),
+            Point.Min(verticies),
+            Point.Max(verticies)
+        )
         {
             _verticies = verticies;
             _normal = normal;
@@ -50,7 +59,7 @@ namespace RayTracer.Objects
                     ray.Origin.Z + ray.Direction.Z * omega
                 );
 
-                return new Intersection(omega, intersectionPoint, _normal, material);
+                return new Intersection(omega, intersectionPoint, _normal, Material);
             }
 
             return null;
@@ -61,6 +70,14 @@ namespace RayTracer.Objects
             _verticies[0].Transform(transformationMatrix);
             _verticies[1].Transform(transformationMatrix);
             _verticies[2].Transform(transformationMatrix);
+            this.Center = Point.Center(_verticies);
+            this.BBMin = Point.Min(_verticies);
+            this.BBMax = Point.Max(_verticies);
+        }
+
+        public override string ToString()
+        {
+            return $"Points:\n\tA: {A}\n\tB: {B}\n\tC: {C}\n\tNormal: {_normal}";
         }
     }
 }

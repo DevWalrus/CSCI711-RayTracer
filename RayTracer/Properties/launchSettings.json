@@ -2,14 +2,23 @@
   "profiles": {
     "RayTracer (Tests)": {
       "commandName": "Project",
-      "commandLineArgs": "-t"
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -t"
     },
     "RayTracer": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\"
     },
     "RayTracer (Parallel)": {
       "commandName": "Project",
-      "commandLineArgs": "-p"
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -m"
+    },
+    "RayTracer (Bunny)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -b -m"
+    },
+    "RayTracer (Bunny) (Single)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -b"
     }
   }
 }

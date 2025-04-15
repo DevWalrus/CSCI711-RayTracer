@@ -67,22 +67,35 @@ namespace RayTracer.Shaders
         /// </summary>
         private bool IsInShadow(Point position, MyVector toLight, World world, LightSource light)
         {
-            double epsilon = 1e-5;
-            Point shadowRayOrigin = new Point(
+
+            var epsilon = 1e-5;
+            var shadowRayOrigin = new Point(
                 position.X + toLight.X * epsilon,
                 position.Y + toLight.Y * epsilon,
                 position.Z + toLight.Z * epsilon
             );
 
-            Ray shadowRay = new Ray(shadowRayOrigin, toLight);
-            double distToLight = shadowRayOrigin.Distance(light.Center);
+            var shadowRay = new Ray(shadowRayOrigin, toLight);
+            var distToLight = shadowRayOrigin.Distance(light.Center);
 
-            foreach (var obj in world.Objects)
+            if (world.KdTreeRoot != null)
             {
-                var inter = obj.Intersect(shadowRay, 0);
+                var inter = world.KdTreeRoot.Traverse(shadowRay, distToLight);
                 if (inter != null && inter.Omega < distToLight)
                 {
                     return true;
+                }
+            }
+            else
+            {
+                // Fallback to iterating over all objects.
+                foreach (var obj in world.Objects)
+                {
+                    var inter = obj.Intersect(shadowRay, 0);
+                    if (inter != null && inter.Omega < distToLight)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;

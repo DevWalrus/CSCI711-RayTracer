@@ -1,10 +1,8 @@
 ﻿#pragma warning disable CA1416
-using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using RayTracer.Shaders;
 using System.Drawing;
-using System.Numerics;
 
 namespace RayTracer
 {
@@ -113,8 +111,8 @@ namespace RayTracer
             var kr = intersection.Material.Reflectivity;
             var kt = intersection.Material.Transparency;
 
-            var reflectionColor = new Color(0, 0, 0);
-            var refractionColor = new Color(0, 0, 0);
+            var reflectionColor = Color.Black;
+            var refractionColor = Color.Black;
 
             if (kr > 0.0 && depth < MAX_DEPTH)
             {
@@ -172,7 +170,7 @@ namespace RayTracer
             double posY = topLeftPixel.Y - currentY * pixelHeight;
             Point pixelCenter = new Point(posX, posY, _focalDistance);
 
-            Color accumulatedColor = new Color(0, 0, 0);
+            Color accumulatedColor = Color.Black;
             Random localRand = new Random(currentX + currentY + Environment.TickCount);
 
             // Loop over multiple samples per pixel.

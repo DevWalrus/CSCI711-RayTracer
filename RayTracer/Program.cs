@@ -1,31 +1,51 @@
-﻿using RayTracer.Objects;
+﻿using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using RayTracer.Objects;
 using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace RayTracer
 {
     public class Program
     {
-        private static readonly string BaseLocation = @"C:\Users\Clinten\Documents\Courses\2245\GlobalIllum\RayTracer\";
-        //private static readonly string BaseLocation = @"C:\Users\clint\source\repos\DevWalrus\CSCI711-RayTracer\";
-        private static readonly string OutputLocation = BaseLocation + @"Output\";
-        private static readonly string InputLocation = BaseLocation + @"Input\";
+        private static string BaseLocation = @"C:\";
+        private static readonly string OutputFolder = @"Output\";
+        private static readonly string InputFolder = @"Input\";
+        private static string OutputLocation = BaseLocation + OutputFolder;
+        private static string InputLocation = BaseLocation + InputFolder;
         private static bool _isParallel = false;
 
         static void Main(string[] args)
         {
             var argSet = new HashSet<string>(args);
 
-            if (argSet.Contains("-p") || argSet.Contains("--parallel"))
+            if (argSet.Contains("-m") || argSet.Contains("--multithreaded"))
                 _isParallel = true;
 
+            var pathArgIndex = Array.FindIndex(args, arg => arg == "-p" || arg == "--path");
+            if (pathArgIndex != -1 && pathArgIndex + 1 < args.Length)
+            {
+                BaseLocation = args[pathArgIndex + 1];
+                OutputLocation = Path.Combine(BaseLocation, OutputFolder);
+                InputLocation = Path.Combine(BaseLocation, InputFolder);
+            }
+
             if (argSet.Contains("-t") || argSet.Contains("--test"))
-                TestRunner.RunAllTests();
+            {
+                TestRunner.RunAllTests(InputLocation);
+            }
+            else if(argSet.Contains("-b") || argSet.Contains("--bunny"))
+            {
+                CreateBunny();
+            }
             else
+            {
                 CreateRenderedImage();
+            }
         }
 
         static void CreateRenderedImage2()
@@ -34,7 +54,7 @@ namespace RayTracer
 
             var world = new World();
 
-            var lightSource = new LightSource(new Point(0, 10, -10), new Color(0, 0, 0));
+            var lightSource = new LightSource(new Point(0, 10, -10), Color.White);
 
             world.Add(lightSource);
 
@@ -45,11 +65,11 @@ namespace RayTracer
             world.Add(transparentSphere);
 
             var bitmap = camera.render(world);
-            PPMWriter.WriteBitmapToPPM(OutputLocation + "SingleSphere.ppm", bitmap);
+            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "SingleSphere.ppm"), bitmap);
             using Process fileopener = new Process();
 
             fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + OutputLocation + "SingleSphere.ppm" + "\"";
+            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Scene.ppm") + "\"";
             fileopener.Start();
         }
 
@@ -58,19 +78,19 @@ namespace RayTracer
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
-            var world = new World();
+            var world = new World(Color.White);
 
-            var lightSource = new LightSource(new Point(0, 5, 2.5), new Color(1, 1, 1));
+            var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
 
             world.Add(lightSource);
 
-            var green = new ColorShader(new Color(0, 1, 0));
+            var green = new ColorShader(Color.Green);
             var silver = new ColorShader(new Color(0.7529, 0.7529, 0.7529));
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
             var silverPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, reflectivity: 0.75);
-            //var floor = new NoisyCheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1, 0.5);
-            var floor = new CheckerboardShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.1);
-            //var floor = new BrickShader(new Color(1, 0, 0), new Color(1, 1, 0), 0.25, 0.5, 0.1);
+            //var floor = new NoisyCheckerboardShader(Color.Red, Color.Yellow, 0.1, 0.5);
+            var floor = new CheckerboardShader(Color.Red, Color.Yellow, 0.1);
+            //var floor = new BrickShader(Color.Red, Color.Yellow, 0.25, 0.5, 0.1);
             //var floor = new ImageShader(InputLocation + "joe.jpg", 0.5);
             //var floor = new MandelbrotShader(0.5, 0.5, -0.1, -1, 100, 270);
             var floorPhong = new PhongShader(0.1, 0.6, 0.3, 16, floor);
@@ -85,16 +105,69 @@ namespace RayTracer
             world.Add(leftSidePlane);
             world.Add(transparentSphere);
             world.Add(reflectiveSphere);
+            world.BuildKdTree();
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);
             sw.Stop();
             Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
-            PPMWriter.WriteBitmapToPPM(OutputLocation + "Scene.ppm", bitmap);
+            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Scene.ppm"), bitmap);
             using Process fileopener = new Process();
 
             fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + OutputLocation + "Scene.ppm" + "\"";
+            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Scene.ppm") + "\"";
+            fileopener.Start();
+        }
+
+        static void CreateBunny()
+        {
+            var camera = new Camera(new Point(0, 0.5, 5), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
+            camera.SetPinhole();
+
+            var world = new World(Color.White);
+
+            var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
+
+            world.Add(lightSource);
+
+            var green = new ColorShader(Color.Green);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+
+            var redColor = new ColorShader(Color.Red);
+            var redPhong = new PhongShader(0.1, 0.6, 0.3, 16, redColor);
+
+            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), redPhong);
+            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), redPhong);
+
+            //world.Add(rightSidePlane);
+            //world.Add(leftSidePlane);
+            //var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
+            //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
+            var tet1 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var tet2 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var tet3 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var tet4 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var tet5 = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            tet2.Transform(TransformationMatrices.Translate(-1, 0, 0));
+            //tet4.Transform(TransformationMatrices.Translate(0.5, 0, 0));
+            tet5.Transform(TransformationMatrices.Translate(1, 0, 0));
+            //bunny.Transform(TransformationMatrices.Translate(-bunny.Center.X, -bunny.Center.Y, -bunny.Center.Z));
+            //bunny.Transform(TransformationMatrices.LinearScale(2));
+            //bunny.Transform(TransformationMatrices.Translate(bunny.Center.X, bunny.Center.Y, bunny.Center.Z));
+            world.Add(tet1).Add(tet2).Add(tet4).Add(tet5);
+            Console.WriteLine("Building tree...");
+            world.BuildKdTree();
+            Console.WriteLine("Built!");
+
+            Stopwatch sw = Stopwatch.StartNew();
+            var bitmap = camera.render(world);
+            sw.Stop();
+            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
+            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Bunny.ppm"), bitmap);
+            using Process fileopener = new Process();
+
+            fileopener.StartInfo.FileName = "explorer";
+            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Bunny.ppm") + "\"";
             fileopener.Start();
         }
 
@@ -131,8 +204,8 @@ namespace RayTracer
                 world.Add(reflectiveSphere);
 
                 var bitmap = camera.render(world);
-                var f_name = $"Scene_DOF_{app.ToString().Replace(".", "_")}.ppm";
-                PPMWriter.WriteBitmapToPPM(OutputLocation + f_name, bitmap);
+                var fileName = $"Scene_DOF_{app.ToString().Replace(".", "_")}.ppm";
+                PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, fileName), bitmap);
                 //using Process fileopener = new Process();
 
                 //fileopener.StartInfo.FileName = "explorer";
