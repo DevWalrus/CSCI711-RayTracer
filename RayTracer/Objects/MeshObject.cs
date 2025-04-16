@@ -12,17 +12,6 @@ namespace RayTracer.Objects
 
         public List<Triangle> Triangles { get => _triangles; }
 
-        public MeshObject(string filePath, Material material) : base(material)
-        {
-            _triangles = PlyParser.ParsePlyFile(filePath, material);
-
-            _kdTree = new KdTreeNode([.. _triangles]);
-
-            Center = Point.Center([_kdTree.BoundingBox.Min, _kdTree.BoundingBox.Max]); ;
-            BBMin = _kdTree.BoundingBox.Min;
-            BBMax = _kdTree.BoundingBox.Max;
-        }
-
         public MeshObject(List<Triangle> triangles, Material material) : base(material)
         {
             _triangles = triangles;

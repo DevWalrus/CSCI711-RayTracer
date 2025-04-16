@@ -91,7 +91,7 @@ namespace RayTracer
             if (depth >= MAX_DEPTH)
                 return world.BackgroundColor;
 
-            var intersection = world.Spawn(ray);
+            var intersection = world.Spawn(ray.Transform(CamToWorld));
             if (intersection == null)
                 return world.BackgroundColor;
 
@@ -219,7 +219,7 @@ namespace RayTracer
 
         public Bitmap render(World world)
         {
-            world.TransformAllObjects(ViewMatrix);
+            world.BuildKdTree();
             var pixelWidth = _filmPlaneWidth / _imageWidth;
             var pixelHeight = _filmPlaneHeight / _imageHeight;
 

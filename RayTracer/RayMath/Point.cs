@@ -99,8 +99,6 @@ namespace RayTracer.RayMath
 
         public void Transform(Matrix<double> m)
         {
-            var homogeneousPoint = DenseVector.OfArray([X, Y, Z, 1]);
-
             var transformed = m.TransformPoint(this);
 
             X = transformed.X;

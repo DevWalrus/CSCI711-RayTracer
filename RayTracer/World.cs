@@ -35,7 +35,7 @@ namespace RayTracer
 
         public World TransformAllObjects(Matrix<double> m)
         {
-            _objectList.ForEach(o => o.Transform(m));
+            //_objectList.ForEach(o => o.Transform(m));
             return this;
         }
 

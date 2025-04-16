@@ -579,6 +579,39 @@ namespace RayTracer.Tests
             CloseEquals(triTransformed.C, new Point(8, 8, 9));
         }
 
+        public static void Test_ObjParser_Tetrahedron()
+        {
+            // Given
+            var inputObj = Path.Combine(InputLocation, "tetrahedron.obj");
+
+            // When
+            var tris = ObjParser.ParseObjFile(inputObj, WHITE_MAT);
+
+            // Then: should have 4 faces
+            Equals(4, tris.Count);
+
+            // Face #1: v1,v2,v3 => (0,0,0),(1,0,0),(0,1,0)
+            CloseEquals(tris[0].A, new Point(0, 0, 0));
+            CloseEquals(tris[0].B, new Point(1, 0, 0));
+            CloseEquals(tris[0].C, new Point(0, 1, 0));
+
+            // Face #2: v1,v2,v4 => (0,0,0),(1,0,0),(0,0,1)
+            CloseEquals(tris[1].A, new Point(0, 0, 0));
+            CloseEquals(tris[1].B, new Point(1, 0, 0));
+            CloseEquals(tris[1].C, new Point(0, 0, 1));
+
+            // Face #3: v2,v3,v4 => (1,0,0),(0,1,0),(0,0,1)
+            CloseEquals(tris[2].A, new Point(1, 0, 0));
+            CloseEquals(tris[2].B, new Point(0, 1, 0));
+            CloseEquals(tris[2].C, new Point(0, 0, 1));
+
+            // Face #4: v3,v1,v4 => (0,1,0),(0,0,0),(0,0,1)
+            CloseEquals(tris[3].A, new Point(0, 1, 0));
+            CloseEquals(tris[3].B, new Point(0, 0, 0));
+            CloseEquals(tris[3].C, new Point(0, 0, 1));
+        }
+
+
         public static void Test_Mesh_MoveIntoCamSpace()
         {
             // Given

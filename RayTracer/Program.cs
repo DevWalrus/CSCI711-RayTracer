@@ -96,10 +96,10 @@ namespace RayTracer
 
         static void CreateBunny()
         {
-            var camera = new Camera(new Point(0, 0, -1), new Point(0, 0, 0), new MyVector(0, 1, 0), _isParallel);
+            var camera = new Camera(new Point(0, 0, -10), new Point(0, 0, 0), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
-            var world = new World(Color.White);
+            var world = new World(Color.Black);
 
             var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
 
@@ -108,18 +108,19 @@ namespace RayTracer
             var green = new ColorShader(Color.Green);
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
             
-            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
-            var tetra = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), greenPhong);
-            PlyParser.WritePlyFile(Path.Combine(OutputLocation, "bunny_parsed.ply"), bunny);
+            var piano = new MeshObject(ObjParser.ParseObjFile(Path.Combine(InputLocation, "piano.obj"), greenPhong), greenPhong);
+            piano.Transform(camera.ViewMatrix);
+            PlyParser.WritePlyFile(Path.Combine(OutputLocation, "piano_parsed.ply"), piano);
+            var bunny = new MeshObject(PlyParser.ParsePlyFile(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong), greenPhong);
+            //bunny.Transform(camera.ViewMatrix);
+            //PlyParser.WritePlyFile(Path.Combine(OutputLocation, "bunny_parsed.ply"), bunny);
+            var tetra = new MeshObject(PlyParser.ParsePlyFile(Path.Combine(InputLocation, "tetrahedron.ply"), greenPhong), greenPhong);
             var sphere = new Sphere(new Point(0, -0.3, 0), 0.25, new PhongShader(0.1, 0.6, 0.3, 16, new ColorShader(new Color(0.7529, 0.7529, 0.7529)), reflectivity: 0.75));
             //bunny.Scale(1.005);
             //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
             world.Add(sphere);
             world.Add(bunny);
             tetra.Scale(0.5);
-            Console.WriteLine("Building tree...");
-            world.BuildKdTree();
-            Console.WriteLine($"Built! Min: {world.KdTreeRoot!.BoundingBox.Min}, Max: {world.KdTreeRoot.BoundingBox.Max}");
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);

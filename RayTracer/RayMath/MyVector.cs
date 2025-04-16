@@ -37,6 +37,11 @@ namespace RayTracer.RayMath
             return m1.Add(m2);
         }
 
+        public static MyVector operator /(MyVector v, float f)
+        {
+            return new MyVector(v.X / f, v.Y / f, v.Z / f);
+        }
+
         public MyVector Subtract(MyVector otherVector)
         {
             return new MyVector(vector - otherVector.vector);
