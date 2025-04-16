@@ -59,7 +59,7 @@ namespace RayTracer
 
             var green = new ColorShader(Color.Green);
             var silver = new ColorShader(new Color(0.7529, 0.7529, 0.7529));
-            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, indexOfRefraction: 0.95, transparency: 0.8);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, indexOfRefraction: 1, transparency: 0.8);
             var silverPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, reflectivity: 0.75);
             //var floor = new NoisyCheckerboardShader(Color.Red, Color.Yellow, 0.1, 0.5);
             var floor = new CheckerboardShader(Color.Red, Color.Yellow, 0.1);
@@ -78,9 +78,6 @@ namespace RayTracer
             world.Add(leftSidePlane);
             world.Add(transparentSphere);
             world.Add(reflectiveSphere);
-            Console.WriteLine("Building tree...");
-            world.BuildKdTree();
-            Console.WriteLine("Built!");
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);
