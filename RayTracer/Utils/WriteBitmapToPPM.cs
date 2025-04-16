@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Text;
 
-namespace RayTracer
+namespace RayTracer.Utils
 {
     public class PPMWriter
     {
@@ -18,7 +18,7 @@ namespace RayTracer
                 {
                     for (int x = 0; x < bitmap.Width; x++)
                     {
-                        System.Drawing.Color color = bitmap.GetPixel(x, y);
+                        Color color = bitmap.GetPixel(x, y);
                         fs.WriteByte(color.R);
                         fs.WriteByte(color.G);
                         fs.WriteByte(color.B);

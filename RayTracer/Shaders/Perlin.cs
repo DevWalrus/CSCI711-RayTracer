@@ -92,9 +92,9 @@ namespace RayTracer.Shaders
             GradientType V111 = gradients[PT[PT[X1Index + 1] + cubeZ + 1] % gradients.Length];
 
             //calculate the local x, y and z coordinates (0..1)
-            x -= RayMath.Floor(x);
-            y -= RayMath.Floor(y);
-            z -= RayMath.Floor(z);
+            x -= Math.Floor(x);
+            y -= Math.Floor(y);
+            z -= Math.Floor(z);
 
             //calculate dot products
             double V000Dot = Dot(V000, x, y, z);
@@ -143,9 +143,9 @@ namespace RayTracer.Shaders
             GradientType V101 = gradients[PT[PT[X1Index] + (cubeZ + 1) % tileRegion] % gradients.Length];
             GradientType V110 = gradients[PT[PT[X1Index1] + cubeZ % tileRegion] % gradients.Length];
             GradientType V111 = gradients[PT[PT[X1Index1] + (cubeZ + 1) % tileRegion] % gradients.Length];
-            x -= RayMath.Floor(x);
-            y -= RayMath.Floor(y);
-            z -= RayMath.Floor(z);
+            x -= Math.Floor(x);
+            y -= Math.Floor(y);
+            z -= Math.Floor(z);
             double V000Dot = Dot(V000, x, y, z);
             double V001Dot = Dot(V001, x, y, z - 1);
             double V010Dot = Dot(V010, x, y - 1, z);

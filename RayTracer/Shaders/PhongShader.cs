@@ -48,11 +48,11 @@ namespace RayTracer.Shaders
                 double shadowFactor = ShadowAttenuation(shading.WorldPosition, toLight, world, light);
                 if (shadowFactor > 0.0)
                 {
-                    double nDotL = RayMath.Max(0, normal.Dot(toLight));
+                    double nDotL = Math.Max(0, normal.Dot(toLight));
                     Color diffuse = baseColor * (_kd * nDotL * shadowFactor);
                     MyVector reflection = (toLight * -1).Reflect(normal);
-                    double rDotV = RayMath.Max(0, reflection.Dot(viewDir));
-                    double specFactor = RayMath.Pow(rDotV, _shininess);
+                    double rDotV = Math.Max(0, reflection.Dot(viewDir));
+                    double specFactor = Math.Pow(rDotV, _shininess);
                     Color specular = light.Color * (_ks * specFactor * shadowFactor);
 
                     result += diffuse + specular;

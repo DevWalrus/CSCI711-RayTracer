@@ -32,7 +32,7 @@ namespace RayTracer.Shaders
             this.offsetX = offsetX;
             this.offsetY = offsetY;
             this.maxIterations = maxIterations;
-            rotationRadians = rotationDegrees * (RayMath.PI / 180.0);
+            rotationRadians = rotationDegrees * (Math.PI / 180.0);
         }
 
         public override Color Shade(ShadingContext shading, World world)
@@ -40,8 +40,8 @@ namespace RayTracer.Shaders
             double xBase = shading.LocalPosition.X * scaleX + offsetX;
             double zBase = shading.LocalPosition.Z * scaleY + offsetY;
 
-            double cosT = RayMath.Cos(rotationRadians);
-            double sinT = RayMath.Sin(rotationRadians);
+            double cosT = Math.Cos(rotationRadians);
+            double sinT = Math.Sin(rotationRadians);
 
             double xRot = xBase * cosT - zBase * sinT;
             double zRot = xBase * sinT + zBase * cosT;

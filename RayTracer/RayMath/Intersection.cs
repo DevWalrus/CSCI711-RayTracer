@@ -1,8 +1,7 @@
 ﻿using System.Numerics;
-using RayTracer.RayMath;
 using RayTracer.Shaders;
 
-namespace RayTracer
+namespace RayTracer.RayMath
 {
     public class Intersection
     {
@@ -24,13 +23,13 @@ namespace RayTracer
             return $"Omega: {Omega}, Position: {Position}, Normal: {Normal}, Material: {Material}";
         }
 
-        public override bool Equals(object? obj) => (obj is Intersection other) && Equals(other);
+        public override bool Equals(object? obj) => obj is Intersection other && Equals(other);
 
         public bool Equals(Intersection other)
         {
-            return RayMath.Abs(Omega - other.Omega) < 1e-6 && 
-                Position.CloseEquals(other.Position) && 
-                Normal.CloseEquals(other.Normal) && 
+            return Math.Abs(Omega - other.Omega) < 1e-6 &&
+                Position.CloseEquals(other.Position) &&
+                Normal.CloseEquals(other.Normal) &&
                 Material.Equals(other.Material);
         }
 

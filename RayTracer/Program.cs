@@ -3,6 +3,8 @@ using RayTracer.Objects;
 using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
+using MathNet.Numerics.LinearAlgebra.Factorization;
+using RayTracer.Utils;
 
 namespace RayTracer
 {
@@ -44,31 +46,6 @@ namespace RayTracer
             }
         }
 
-        static void CreateRenderedImage2()
-        {
-            var camera = new Camera(new Point(0, 0, 0), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
-
-            var world = new World();
-
-            var lightSource = new LightSource(new Point(0, 10, -10), Color.White);
-
-            world.Add(lightSource);
-
-            var red = new ColorShader(new Color(1, 0, 0));
-
-            var transparentSphere = new Sphere(new Point(0, 0, -1), 0.5, red);
-
-            world.Add(transparentSphere);
-
-            var bitmap = camera.render(world);
-            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "SingleSphere.ppm"), bitmap);
-            using Process fileopener = new Process();
-
-            fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Scene.ppm") + "\"";
-            fileopener.Start();
-        }
-
         static void CreateRenderedImage()
         {
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
@@ -101,7 +78,9 @@ namespace RayTracer
             world.Add(leftSidePlane);
             world.Add(transparentSphere);
             world.Add(reflectiveSphere);
+            Console.WriteLine("Building tree...");
             world.BuildKdTree();
+            Console.WriteLine("Built!");
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);
@@ -117,7 +96,7 @@ namespace RayTracer
 
         static void CreateBunny()
         {
-            var camera = new Camera(new Point(0, 0.5, 5), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
+            var camera = new Camera(new Point(0, 0, -1), new Point(0, 0, 0), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
             var world = new World(Color.White);
@@ -128,21 +107,18 @@ namespace RayTracer
 
             var green = new ColorShader(Color.Green);
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
-
-            var redColor = new ColorShader(Color.Red);
-            var redPhong = new PhongShader(0.1, 0.6, 0.3, 16, redColor);
-
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), redPhong);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), redPhong);
-
-            //world.Add(rightSidePlane);
-            //world.Add(leftSidePlane);
-            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
+            
+            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), green);
+            var tetra = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var sphere = new Sphere(new Point(0, -0.3, 0), 0.25, new PhongShader(0.1, 0.6, 0.3, 16, new ColorShader(new Color(0.7529, 0.7529, 0.7529)), reflectivity: 0.75));
+            //bunny.Scale(1.005);
             //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
-            world.Add(bunny);
+            world.Add(sphere);
+            world.Add(tetra);
+            tetra.Scale(0.5);
             Console.WriteLine("Building tree...");
             world.BuildKdTree();
-            Console.WriteLine("Built!");
+            Console.WriteLine($"Built! Min: {world.KdTreeRoot!.BoundingBox.Min}, Max: {world.KdTreeRoot.BoundingBox.Max}");
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);

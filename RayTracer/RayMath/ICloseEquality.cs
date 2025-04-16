@@ -1,4 +1,4 @@
-﻿namespace RayTracer
+﻿namespace RayTracer.RayMath
 {
     public interface ICloseEquality
     {
