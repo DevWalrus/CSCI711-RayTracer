@@ -114,5 +114,65 @@ namespace RayTracer.Utils
             MyVector edge2 = new MyVector(v0, v2);
             return edge1.Cross(edge2).Normalize();
         }
+
+        public static void WritePlyFile(string filePath, MeshObject mesh)
+        {
+            // Dictionary to maintain unique vertices. 
+            // If your Point class implements GetHashCode() and Equals() correctly, you can use Dictionary<Point, int> instead.
+            Dictionary<string, int> vertexToIndex = new Dictionary<string, int>();
+            List<Point> vertices = new List<Point>();
+            List<int[]> faces = new List<int[]>();
+
+            // Iterate over every triangle in the mesh.
+            foreach (var triangle in mesh.Triangles)
+            {
+                // Assume each triangle has exactly 3 vertices available via a property "Vertices".
+                int[] faceIndices = new int[3];
+                for (int i = 0; i < 3; i++)
+                {
+                    Point vertex = triangle[i];
+                    // Build a key for the vertex using invariant culture formatting.
+                    string key = $"{vertex.X.ToString(CultureInfo.InvariantCulture)}_" +
+                                 $"{vertex.Y.ToString(CultureInfo.InvariantCulture)}_" +
+                                 $"{vertex.Z.ToString(CultureInfo.InvariantCulture)}";
+                    if (!vertexToIndex.ContainsKey(key))
+                    {
+                        vertexToIndex[key] = vertices.Count;
+                        vertices.Add(vertex);
+                    }
+                    faceIndices[i] = vertexToIndex[key];
+                }
+                faces.Add(faceIndices);
+            }
+
+            // Write to file in ASCII PLY format.
+            using (var writer = new StreamWriter(filePath))
+            {
+                // Write header
+                writer.WriteLine("ply");
+                writer.WriteLine("format ascii 1.0");
+                writer.WriteLine($"element vertex {vertices.Count}");
+                writer.WriteLine("property float x");
+                writer.WriteLine("property float y");
+                writer.WriteLine("property float z");
+                writer.WriteLine($"element face {faces.Count}");
+                writer.WriteLine("property list uchar int vertex_indices");
+                writer.WriteLine("end_header");
+
+                // Write vertex data
+                foreach (var v in vertices)
+                {
+                    writer.WriteLine($"{v.X.ToString(CultureInfo.InvariantCulture)} " +
+                                       $"{v.Y.ToString(CultureInfo.InvariantCulture)} " +
+                                       $"{v.Z.ToString(CultureInfo.InvariantCulture)}");
+                }
+
+                // Write face data (each face is a triangle, so it starts with a "3")
+                foreach (var face in faces)
+                {
+                    writer.WriteLine($"3 {face[0]} {face[1]} {face[2]}");
+                }
+            }
+        }
     }
 }

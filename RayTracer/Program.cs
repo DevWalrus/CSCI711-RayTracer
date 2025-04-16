@@ -108,13 +108,14 @@ namespace RayTracer
             var green = new ColorShader(Color.Green);
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
             
-            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), green);
-            var tetra = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), green);
+            var bunny = new MeshObject(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong);
+            var tetra = new MeshObject(Path.Combine(InputLocation, "tetrahedron.ply"), greenPhong);
+            PlyParser.WritePlyFile(Path.Combine(OutputLocation, "bunny_parsed.ply"), bunny);
             var sphere = new Sphere(new Point(0, -0.3, 0), 0.25, new PhongShader(0.1, 0.6, 0.3, 16, new ColorShader(new Color(0.7529, 0.7529, 0.7529)), reflectivity: 0.75));
             //bunny.Scale(1.005);
             //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
             world.Add(sphere);
-            world.Add(tetra);
+            world.Add(bunny);
             tetra.Scale(0.5);
             Console.WriteLine("Building tree...");
             world.BuildKdTree();

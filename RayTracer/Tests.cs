@@ -638,6 +638,88 @@ namespace RayTracer.Tests
             Console.WriteLine($"Mesh:\n\tMin: {mesh.BBMin}\n\tCenter: {mesh.Center}\n\tMax: {mesh.BBMax}");
         }
 
+        class DummyRenderable : RenderableObject
+        {
+            public DummyRenderable(Point bbMin, Point bbMax, Material material) : base(material)
+            {
+                BBMin = bbMin;
+                BBMax = bbMax;
+                // Compute the center from bbMin and bbMax.
+                Center = new Point((bbMin.X + bbMax.X) * 0.5,
+                                   (bbMin.Y + bbMax.Y) * 0.5,
+                                   (bbMin.Z + bbMax.Z) * 0.5);
+            }
+
+            public override Intersection? Intersect(Ray ray, double minIntersection = 0)
+            {
+                // For testing AABB computation, the intersection here is irrelevant.
+                return null;
+            }
+
+            public override void Transform(Matrix<double> transformationMatrix)
+            {
+                // For testing, you don’t need to support transforming a dummy.
+            }
+        }
+
+        public static void Test_AABBAggregationFromRenderables()
+        {
+            // Create a few dummy renderables with fixed bounding boxes.
+            var renderables = new List<RenderableObject>
+                {
+                    new DummyRenderable(new Point(0, 0, 0), new Point(1, 1, 1), WHITE_MAT),
+                    new DummyRenderable(new Point(-1, -1, -1), new Point(0, 0, 0), WHITE_MAT),
+                    new DummyRenderable(new Point(0.5, 0.5, 0.5), new Point(2, 2, 2), WHITE_MAT)
+                };
+
+            // The overall AABB should enclose all objects.
+            // Expected aggregated min: (-1, -1, -1) and max: (2, 2, 2).
+            AABB box = new AABB(renderables);
+
+            CloseEquals(box.Min, new Point(-1, -1, -1));
+            CloseEquals(box.Max, new Point(2, 2, 2));
+        }
+
+        public static void Test_AABBIntersection_RayHits()
+        {
+            // Define a box from (0,0,0) to (1,1,1).
+            Point min = new Point(0, 0, 0);
+            Point max = new Point(1, 1, 1);
+            AABB box = new AABB(min, max);
+
+            // Create a ray that originates to the left of the box and points right.
+            // It should hit the box. For example, the ray origin is (-1, 0.5, 0.5)
+            // with a direction of (1, 0, 0).
+            Point rayOrigin = new Point(-1, 0.5, 0.5);
+            MyVector direction = new MyVector(1, 0, 0);
+            Ray ray = new Ray(rayOrigin, direction);
+
+            bool intersects = box.Intersect(ray, out double tMin, out double tMax);
+
+            IsTrue(intersects);
+            // Expect tMin to be 1 (exactly hitting the face at x=0) within some tolerance.
+            CloseEquals(1, tMin);
+        }
+
+        public static void Test_AABBIntersection_RayMisses()
+        {
+            // Define a box from (0,0,0) to (1,1,1).
+            Point min = new Point(0, 0, 0);
+            Point max = new Point(1, 1, 1);
+            AABB box = new AABB(min, max);
+
+            // Create a ray that originates above the box and points upward.
+            Point rayOrigin = new Point(0.5, 2, 0.5);
+            MyVector direction = new MyVector(0, 1, 0);
+            Ray ray = new Ray(rayOrigin, direction);
+
+            bool intersects = box.Intersect(ray, out double tMin, out double tMax);
+
+            IsFalse(intersects);
+        }
+
+
+
         private static void IsNotNull<T>(T obj1)
         {
             if (obj1 != null)
@@ -656,6 +738,36 @@ namespace RayTracer.Tests
                 return;
             }
             testResults.Add((currTestNum++, $"The value is not as expected. Expected: null, Actual: {obj1.ToString()}"));
+        }
+
+        private static void IsFalse(bool value)
+        {
+            if (!value)
+            {
+                testResults.Add((currTestNum++, null));
+                return;
+            }
+            testResults.Add((currTestNum++, $"The value is not as expected. Expected: false, Actual: {value.ToString()}"));
+        }
+
+        private static void IsTrue(bool value)
+        {
+            if (value)
+            {
+                testResults.Add((currTestNum++, null));
+                return;
+            }
+            testResults.Add((currTestNum++, $"The value is not as expected. Expected: true, Actual: {value.ToString()}"));
+        }
+
+        private static void CloseEquals(double? obj1, double? obj2)
+        {
+            if (obj1 != null && obj2 != null && obj2.Value - obj1.Value < Tolerance)
+            {
+                testResults.Add((currTestNum++, null));
+                return;
+            }
+            testResults.Add((currTestNum++, $"The value is not as expected. Expected: {obj1?.ToString() ?? "null"}, Actual: {obj2?.ToString() ?? "null"}"));
         }
 
         private static void CloseEquals(ICloseEquality obj1, ICloseEquality obj2)
@@ -727,6 +839,5 @@ namespace RayTracer.Tests
                 testResults.Add((currTestNum++, null));
             }
         }
-
     }
 }

@@ -67,7 +67,7 @@ namespace RayTracer.RayMath
 
         public static Point Center(List<Point> points)
         {
-            var sumPoint = Aggregate(points, (a, b) => a + b);
+            var sumPoint = Aggregate(points, (a, b) => a + b * 0.5);
             var pointsLen = points.Count;
 
             return new Point(

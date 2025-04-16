@@ -61,16 +61,47 @@ namespace RayTracer
                 return bestIntersection;
             }
 
-            // Recursively check children.
-            Intersection? leftIntersection = Left!.Traverse(ray, closestHit);
-            if (leftIntersection != null)
-                closestHit = leftIntersection.Omega;
+            // For internal nodes, compute which child's bounding box is hit first.
+            double leftTMin = double.PositiveInfinity;
+            double rightTMin = double.PositiveInfinity;
+            bool leftIntersects = Left != null && Left.BoundingBox.Intersect(ray, out leftTMin, out _);
+            bool rightIntersects = Right != null && Right.BoundingBox.Intersect(ray, out rightTMin, out _);
 
-            Intersection? rightIntersection = Right!.Traverse(ray, closestHit);
+            Intersection? firstIntersection = null;
+            Intersection? secondIntersection = null;
 
-            return (leftIntersection == null) ? rightIntersection :
-                   (rightIntersection == null) ? leftIntersection :
-                   (leftIntersection.Omega < rightIntersection.Omega ? leftIntersection : rightIntersection);
+            // Traverse the child with the lower tMin first.
+            if (leftIntersects && (!rightIntersects || leftTMin < rightTMin))
+            {
+                firstIntersection = Left!.Traverse(ray, closestHit);
+                if (firstIntersection != null)
+                {
+                    closestHit = firstIntersection.Omega;
+                    // If the intersection in the left child is closer than 
+                    // the entry point of the right child, no need to check right.
+                    if (!rightIntersects || firstIntersection.Omega < rightTMin)
+                        return firstIntersection;
+                }
+                secondIntersection = Right != null ? Right.Traverse(ray, closestHit) : null;
+            }
+            else if (rightIntersects)
+            {
+                firstIntersection = Right!.Traverse(ray, closestHit);
+                if (firstIntersection != null)
+                {
+                    closestHit = firstIntersection.Omega;
+                    // If the intersection in the right child is closer than 
+                    // the entry point of the left child, return early.
+                    if (!leftIntersects || firstIntersection.Omega < leftTMin)
+                        return firstIntersection;
+                }
+                secondIntersection = Left != null ? Left.Traverse(ray, closestHit) : null;
+            }
+
+            // Choose the closer intersection of the two children.
+            if (firstIntersection == null) return secondIntersection;
+            if (secondIntersection == null) return firstIntersection;
+            return firstIntersection.Omega < secondIntersection.Omega ? firstIntersection : secondIntersection;
         }
     }
 }
