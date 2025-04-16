@@ -132,12 +132,12 @@ namespace RayTracer
             if (kt > 0.0 && depth < MAX_DEPTH)
             {
                 var I = ray.Direction.Normalize();
-                var N = intersection.Normal.Normalize();
+                var N0 = intersection.Normal.Normalize();
 
-                // Clamp index‐of‐refraction to at least 1.0:
-                double materialIOR = Math.Max(1.0, intersection.Material.IndexOfRefraction);
+                bool entering = I.Dot(N0) < 0;
+                var N = entering ? N0 : N0 * -1.0;
 
-                bool entering = I.Dot(N) < 0;
+                double materialIOR = Math.Max(1e-6, intersection.Material.IndexOfRefraction); 
                 double n1 = entering ? 1.0 : materialIOR;
                 double n2 = entering ? materialIOR : 1.0;
                 double eta = n1 / n2;
@@ -145,27 +145,27 @@ namespace RayTracer
                 double cosI = -I.Dot(N);
                 double k = 1 - eta * eta * (1 - cosI * cosI);
 
-                MyVector R;
+                MyVector T;
                 if (k < 0)
                 {
-                    // Total internal reflection
-                    R = I.Reflect(N).Normalize();
+                    T = I.Reflect(N).Normalize();
                 }
                 else
                 {
-                    // Normal refraction
-                    R = (eta * I + (eta * cosI - Math.Sqrt(k)) * N).Normalize();
+                    T = (eta * I + (eta * cosI - Math.Sqrt(k)) * N).Normalize();
                 }
 
                 var origin = new Point(
-                    intersection.Position.X + R.X * 1e-6,
-                    intersection.Position.Y + R.Y * 1e-6,
-                    intersection.Position.Z + R.Z * 1e-6
+                    intersection.Position.X + T.X * 1e-6,
+                    intersection.Position.Y + T.Y * 1e-6,
+                    intersection.Position.Z + T.Z * 1e-6
                 );
-                refractionColor = TraceRay(new Ray(origin, R), world, depth + 1);
+                refractionColor = TraceRay(new Ray(origin, T), world, depth + 1);
+
             }
 
-            return (1 - kt) * localColor
+            double kd = Math.Max(0.0, 1.0 - kr - kt);
+            return kd * localColor
                  + kr * reflectionColor
                  + kt * refractionColor;
         }

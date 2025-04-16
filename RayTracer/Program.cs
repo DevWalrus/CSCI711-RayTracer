@@ -59,7 +59,7 @@ namespace RayTracer
 
             var green = new ColorShader(Color.Green);
             var silver = new ColorShader(new Color(0.7529, 0.7529, 0.7529));
-            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, indexOfRefraction: 1, transparency: 0.8);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, indexOfRefraction: 0.95, transparency: 0.8);
             var silverPhong = new PhongShader(0.1, 0.6, 0.3, 16, silver, reflectivity: 0.75);
             //var floor = new NoisyCheckerboardShader(Color.Red, Color.Yellow, 0.1, 0.5);
             var floor = new CheckerboardShader(Color.Red, Color.Yellow, 0.1);
@@ -93,10 +93,10 @@ namespace RayTracer
 
         static void CreateBunny()
         {
-            var camera = new Camera(new Point(0, 0, -10), new Point(0, 0, 0), new MyVector(0, 1, 0), _isParallel);
+            var camera = new Camera(new Point(-0.1, 0.25, 0.4), new Point(0, 0, -0.2), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
 
-            var world = new World(Color.Black);
+            var world = new World(Color.SkyBlue);
 
             var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
 
@@ -105,19 +105,8 @@ namespace RayTracer
             var green = new ColorShader(Color.Green);
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
             
-            var piano = new MeshObject(ObjParser.ParseObjFile(Path.Combine(InputLocation, "piano.obj"), greenPhong), greenPhong);
-            piano.Transform(camera.ViewMatrix);
-            PlyParser.WritePlyFile(Path.Combine(OutputLocation, "piano_parsed.ply"), piano);
-            var bunny = new MeshObject(PlyParser.ParsePlyFile(Path.Combine(InputLocation, "bun_zipper_res4.ply"), greenPhong), greenPhong);
-            //bunny.Transform(camera.ViewMatrix);
-            //PlyParser.WritePlyFile(Path.Combine(OutputLocation, "bunny_parsed.ply"), bunny);
-            var tetra = new MeshObject(PlyParser.ParsePlyFile(Path.Combine(InputLocation, "tetrahedron.ply"), greenPhong), greenPhong);
-            var sphere = new Sphere(new Point(0, -0.3, 0), 0.25, new PhongShader(0.1, 0.6, 0.3, 16, new ColorShader(new Color(0.7529, 0.7529, 0.7529)), reflectivity: 0.75));
-            //bunny.Scale(1.005);
-            //var bunny = new MeshObject(Path.Combine(InputLocation, "triangle.ply"), greenPhong);
-            world.Add(sphere);
+            var bunny = new MeshObject(PlyParser.ParsePlyFile(Path.Combine(InputLocation, "bun_zipper.ply"), greenPhong), greenPhong);
             world.Add(bunny);
-            tetra.Scale(0.5);
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.render(world);
