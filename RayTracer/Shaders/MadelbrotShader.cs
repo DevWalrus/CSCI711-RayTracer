@@ -1,4 +1,6 @@
-﻿namespace RayTracer.Shaders
+﻿using RayTracer.RayMath;
+
+namespace RayTracer.Shaders
 {
     /// <summary>
     /// A shader that renders the Mandelbrot set by mapping an object's local (x,z) coordinates

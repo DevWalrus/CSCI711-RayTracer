@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
+using RayTracer.RayMath;
 
 namespace RayTracer.Objects
 {

@@ -1,15 +1,44 @@
 {
   "profiles": {
-    "RayTracer (Tests)": {
-      "commandName": "Project",
-      "commandLineArgs": "-t"
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
     },
-    "RayTracer": {
-      "commandName": "Project"
-    },
-    "RayTracer (Parallel)": {
+    "D-Scene": {
       "commandName": "Project",
-      "commandLineArgs": "-p"
+      "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\"
+    },
+    "L-Scene": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\"
+    },
+    "D-Bunny": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\ -b"
+    },
+    "L-Bunny": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -b"
+    },
+    "L-Parallel": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -m"
+    },
+    "L-Bunny (multi)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -b -m"
+    },
+    "L-Tests": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\clint\\source\\repos\\DevWalrus\\CSCI711-RayTracer\\ -t"
+    },
+    "D-Tests": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\ -t"
+    },
+    "D-Bunny (multi)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\ -b -m"
     }
   }
 }

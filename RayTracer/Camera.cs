@@ -1,10 +1,13 @@
 ﻿#pragma warning disable CA1416
-using MathNet.Numerics.Distributions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using RayTracer.RayMath;
 using RayTracer.Shaders;
-using System.Drawing;
-using System.Numerics;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace RayTracer
 {
@@ -19,19 +22,15 @@ namespace RayTracer
         public Matrix<double> CamToWorld;
 
         private double _focalDistance = -1.0;
-
         private int _imageWidth = 800;
         private int _imageHeight = 800;
-
         private double _filmPlaneWidth = 1;
         private double _filmPlaneHeight = 1;
         private Point _cameraCoordsOrigin = new Point(0, 0, 0);
 
         private double _apertureRadius = 0.01;
         private int _samplesPerPixel = 25;
-
         private bool _parallel;
-
         private static Random _rand = new Random();
 
         public Camera(Point position, Point lookAt, MyVector up, bool parallel)
@@ -74,10 +73,7 @@ namespace RayTracer
 
         public void SetAperture(double fStop)
         {
-            // Here focalLength is in the same unit as your aperture radius.
-            // For a realistic mapping, choose focalLength such that f/1.4 yields ~0.01.
             double focalLength = 0.028;
-            // Compute the aperture radius using the physical relationship.
             _apertureRadius = focalLength / (2 * fStop);
         }
 
@@ -85,6 +81,13 @@ namespace RayTracer
         {
             _apertureRadius = 0;
             _samplesPerPixel = 1;
+        }
+
+        public void Supersample()
+        {
+            _apertureRadius = 0;
+            _samplesPerPixel = 25;
+            //_samplesPerPixel = 2;
         }
 
         private Color TraceRay(Ray ray, World world, int depth)
@@ -96,9 +99,14 @@ namespace RayTracer
             if (intersection == null)
                 return world.BackgroundColor;
 
-            var viewDir = new MyVector(-ray.Direction.X, -ray.Direction.Y, -ray.Direction.Z).Normalize();
+            var viewDir = new MyVector(
+                -ray.Direction.X,
+                -ray.Direction.Y,
+                -ray.Direction.Z
+            ).Normalize();
+
             var localPoint = intersection.Position.Copy();
-            localPoint.Transform(CamToWorld);
+            localPoint.Transform(ViewMatrix);
 
             var shadingInfo = new ShadingContext
             {
@@ -109,64 +117,100 @@ namespace RayTracer
             };
 
             var localColor = intersection.Material.Shade(shadingInfo, world);
-
             var kr = intersection.Material.Reflectivity;
             var kt = intersection.Material.Transparency;
 
-            var reflectionColor = new Color(0, 0, 0);
-            var refractionColor = new Color(0, 0, 0);
+            Color reflectionColor = Color.Black;
+            Color refractionColor = Color.Black;
+            const double eps = 1e-6;
 
             if (kr > 0.0 && depth < MAX_DEPTH)
             {
-                var reflectDir = ray.Direction.Normalize().Reflect(intersection.Normal);
-                var reflectOrigin = new Point(
-                    intersection.Position.X + reflectDir.X * 1e-6,
-                    intersection.Position.Y + reflectDir.Y * 1e-6,
-                    intersection.Position.Z + reflectDir.Z * 1e-6
+                var R = ray.Direction
+                          .Normalize()
+                          .Reflect(intersection.Normal);
+                var origin = new Point(
+                    intersection.Position.X + R.X * eps,
+                    intersection.Position.Y + R.Y * eps,
+                    intersection.Position.Z + R.Z * eps
                 );
-                var reflectionRay = new Ray(reflectOrigin, reflectDir);
-                reflectionColor = TraceRay(reflectionRay, world, depth + 1);
+                reflectionColor = TraceRay(new Ray(origin, R), world, depth + 1);
             }
 
             if (kt > 0.0 && depth < MAX_DEPTH)
             {
-                var incident = ray.Direction.Normalize();
-                bool entering = incident.Dot(intersection.Normal) < 0;
-                var normal = entering ? intersection.Normal : intersection.Normal * -1;
-                var n1 = entering ? 1.0 : intersection.Material.IndexOfRefraction;
-                var n2 = entering ? intersection.Material.IndexOfRefraction : 1.0;
-                var eta = n1 / n2;
-                var cosThetaI = incident.Dot(normal) * -1;
-                var k = 1.0f - eta * eta * (1.0f - cosThetaI * cosThetaI);
-                if (k < 0.0f)
+                var I = ray.Direction.Normalize();
+                var N0 = intersection.Normal.Normalize();
+
+                bool entering = I.Dot(N0) < 0;
+                var N = entering ? N0 : N0 * -1.0;
+
+                double materialIOR = Math.Max(1e-6, intersection.Material.IndexOfRefraction); 
+                double n1 = entering ? 1.0 : materialIOR;
+                double n2 = entering ? materialIOR : 1.0;
+                double eta = n1 / n2;
+
+                double cosI = -I.Dot(N);
+                double k = 1 - eta * eta * (1 - cosI * cosI);
+
+                MyVector T;
+                if (k < 0)
                 {
-                    var reflectDir = ray.Direction.Normalize().Reflect(intersection.Normal);
-                    var reflectOrigin = new Point(
-                        intersection.Position.X + reflectDir.X * 1e-6,
-                        intersection.Position.Y + reflectDir.Y * 1e-6,
-                        intersection.Position.Z + reflectDir.Z * 1e-6
-                    );
-                    var reflectionRay = new Ray(reflectOrigin, reflectDir);
-                    refractionColor = TraceRay(reflectionRay, world, depth + 1);
+                    T = I.Reflect(N).Normalize();
                 }
                 else
                 {
-                    var refractDir = (eta * incident + (eta * cosThetaI - (float)Math.Sqrt(k)) * normal).Normalize();
-                    var refractOrigin = new Point(
-                        intersection.Position.X + refractDir.X * 1e-6,
-                        intersection.Position.Y + refractDir.Y * 1e-6,
-                        intersection.Position.Z + refractDir.Z * 1e-6
-                    );
-                    var refractionRay = new Ray(refractOrigin, refractDir);
-                    refractionColor = TraceRay(refractionRay, world, depth + 1);
+                    T = (eta * I + (eta * cosI - Math.Sqrt(k)) * N).Normalize();
                 }
+
+                var origin = new Point(
+                    intersection.Position.X + T.X * 1e-6,
+                    intersection.Position.Y + T.Y * 1e-6,
+                    intersection.Position.Z + T.Z * 1e-6
+                );
+                refractionColor = TraceRay(new Ray(origin, T), world, depth + 1);
+
             }
 
-            var finalColor = ((1 - kt) * localColor) + (kr * reflectionColor) + (kt * refractionColor);
-            return finalColor;
+            double kd = Math.Max(0.0, 1.0 - kr - kt);
+            return kd * localColor
+                 + kr * reflectionColor
+                 + kt * refractionColor;
         }
 
-        private (int x, int y, Color color) spawnOnePixel(
+        private Color SampleColor(Point pixelCenter, Random localRand, World world)
+        {
+            // --- 2) LENS‑DOF sampling (unchanged) ---
+            (double diskX, double diskY) = RandomInUnitDisk(localRand);
+            diskX *= _apertureRadius;
+            diskY *= _apertureRadius;
+
+            var lensOrigin = new Point(
+                _cameraCoordsOrigin.X + diskX,
+                _cameraCoordsOrigin.Y + diskY,
+                _cameraCoordsOrigin.Z
+            );
+
+            var idealDir = pixelCenter
+                .Subtract(_cameraCoordsOrigin)
+                .Normalize();
+
+            var focalPoint = new Point(
+                _cameraCoordsOrigin.X + idealDir.X * Math.Abs(_focalDistance),
+                _cameraCoordsOrigin.Y + idealDir.Y * Math.Abs(_focalDistance),
+                _cameraCoordsOrigin.Z + idealDir.Z * Math.Abs(_focalDistance)
+            );
+
+            var newDir = focalPoint
+                .Subtract(lensOrigin)
+                .Normalize();
+
+            var ray = new Ray(lensOrigin, newDir);
+
+            return TraceRay(ray.Transform(CamToWorld), world, 0);
+        }
+
+        private (int x, int y, Color color) SpawnOnePixel(
             Point topLeftPixel,
             int currentX,
             int currentY,
@@ -175,104 +219,91 @@ namespace RayTracer
             World world
         )
         {
-            // Compute the pixel center.
-            double posX = topLeftPixel.X + currentX * pixelWidth;
-            double posY = topLeftPixel.Y - currentY * pixelHeight;
-            Point pixelCenter = new Point(posX, posY, _focalDistance);
+            Color accumulatedColor = Color.Black;
 
-            Color accumulatedColor = new Color(0, 0, 0);
-            Random localRand = new Random(currentX + currentY + Environment.TickCount);
+            var localRand = new Random(currentX + currentY * 800 + Environment.TickCount);
 
-            // Loop over multiple samples per pixel.
             for (int sample = 0; sample < _samplesPerPixel; sample++)
             {
-                // For depth of field: offset within the lens.
-                (double diskX, double diskY) = RandomInUnitDisk(localRand);
-                diskX *= _apertureRadius;
-                diskY *= _apertureRadius;
+                // --- 1) SUB‑PIXEL JITTER for anti‑aliasing ---
+                double jitterX, jitterY;
+                if (sample == 0)
+                {
+                    jitterX = 0;
+                    jitterY = 0;
+                } else
+                {
+                    jitterX = (localRand.NextDouble() - 0.5) * pixelWidth;
+                    jitterY = (localRand.NextDouble() - 0.5) * pixelHeight;
+                }
 
-                Point lensOrigin = new Point(
-                    _cameraCoordsOrigin.X + diskX,
-                    _cameraCoordsOrigin.Y + diskY,
-                    _cameraCoordsOrigin.Z
-                );
+                double posX = topLeftPixel.X + currentX * pixelWidth + jitterX;
+                double posY = topLeftPixel.Y - currentY * pixelHeight + jitterY;
+                var pixelCenter = new Point(posX, posY, _focalDistance);
 
-                MyVector idealRayDir = pixelCenter.Subtract(_cameraCoordsOrigin).Normalize();
-                Point focalPoint = new Point(
-                    _cameraCoordsOrigin.X + idealRayDir.X * Math.Abs(_focalDistance),
-                    _cameraCoordsOrigin.Y + idealRayDir.Y * Math.Abs(_focalDistance),
-                    _cameraCoordsOrigin.Z + idealRayDir.Z * Math.Abs(_focalDistance)
-                );
-
-                MyVector newRayDir = focalPoint.Subtract(lensOrigin).Normalize();
-                Ray ray = new Ray(lensOrigin, newRayDir);
-
-                // Use the recursive trace function to get the sample color.
-                Color sampleColor = TraceRay(ray, world, 0);
-                accumulatedColor = accumulatedColor + sampleColor;
+                accumulatedColor += SampleColor(pixelCenter, localRand, world);
             }
 
-            // Average the accumulated color.
-            Color finalColor = accumulatedColor * (1.0 / _samplesPerPixel);
+            var finalColor = accumulatedColor / _samplesPerPixel;
             return (currentX, currentY, finalColor);
         }
 
-
-        public Bitmap render(World world)
+        public Bitmap Render(World world)
         {
-            world.TransformAllObjects(ViewMatrix);
+            Stopwatch sw = Stopwatch.StartNew();
+            world.BuildKdTree();
+            sw.Stop();
+            Console.WriteLine($"KD Tree Generation completed in: {sw.ElapsedMilliseconds} ms");
             var pixelWidth = _filmPlaneWidth / _imageWidth;
             var pixelHeight = _filmPlaneHeight / _imageHeight;
 
-            // Define the top-left pixel position (center of pixel)
             var topLeftPixel = new Point(
                 -(_filmPlaneWidth / 2) + (pixelWidth / 2),
                  (_filmPlaneHeight / 2) - (pixelHeight / 2),
                  _focalDistance
             );
 
+            var bmp = new Bitmap(_imageWidth, _imageHeight);
+            List<(int x, int y, Color color)> pixelResults = [];
             if (_parallel)
             {
-                // Create a list to hold tasks for each pixel.
-                List<Task<(int x, int y, Color color)>> pixelTasks = new List<Task<(int, int, Color)>>();
-
+                var pixelTasks = new List<Task<(int, int, Color)>>();
                 for (int y = 0; y < _imageHeight; y++)
-                {
                     for (int x = 0; x < _imageWidth; x++)
                     {
-                        int currentX = x;
-                        int currentY = y;
-                        pixelTasks.Add(Task.Run(() => spawnOnePixel(topLeftPixel, currentX, currentY, pixelWidth, pixelHeight, world)));
+                        int cx = x;  // capture copy
+                        int cy = y;  // capture copy
+                        pixelTasks.Add(Task.Run(() =>
+                            SpawnOnePixel(
+                              topLeftPixel,
+                              cx, cy,
+                              pixelWidth, pixelHeight,
+                              world
+                            )
+                        ));
                     }
-                }
-
-                // Wait for all pixel tasks to complete.
                 Task.WaitAll(pixelTasks.ToArray());
-
-                // Create the final bitmap and set each pixel.
-                var bitmap = new Bitmap(_imageWidth, _imageHeight);
-                foreach (var task in pixelTasks)
-                {
-                    var result = task.Result;
-                    bitmap.SetPixel(result.x, result.y, result.color.ToSystemColor());
-                }
-
-                return bitmap;
-            } else
+                pixelResults = pixelTasks.Select(t => t.Result).ToList();
+            }
+            else
             {
-                var bitmap = new Bitmap(_imageWidth, _imageHeight);
                 for (int y = 0; y < _imageHeight; y++)
-                {
                     for (int x = 0; x < _imageWidth; x++)
                     {
-                        int currentX = x;
-                        int currentY = y;
-                        var result = spawnOnePixel(topLeftPixel, currentX, currentY, pixelWidth, pixelHeight, world);
-                        bitmap.SetPixel(result.x, result.y, result.color.ToSystemColor());
+                        pixelResults.Add(SpawnOnePixel(
+                            topLeftPixel,
+                            x, y,
+                            pixelWidth, pixelHeight,
+                            world));
                     }
-                }
-                return bitmap;
             }
+
+            foreach (var (x, y, col) in pixelResults)
+            {
+                bmp.SetPixel(x, y, col.ToSystemColor());
+            }
+
+            return bmp;
         }
     }
 }

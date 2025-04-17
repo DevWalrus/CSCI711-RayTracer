@@ -1,5 +1,4 @@
-﻿using RayTracer.Objects;
-using System.Drawing;
+﻿using RayTracer.RayMath;
 
 namespace RayTracer.Shaders
 {

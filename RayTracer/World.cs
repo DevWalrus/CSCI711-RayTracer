@@ -1,4 +1,5 @@
 using MathNet.Numerics.LinearAlgebra;
+using RayTracer.RayMath;
 using RayTracer.Objects;
 
 namespace RayTracer
@@ -8,39 +9,64 @@ namespace RayTracer
         private readonly List<RenderableObject> _objectList = [];
         private readonly List<LightSource> _lightList = [];
 
+        public KdTreeNode? KdTreeRoot;
         public List<RenderableObject> Objects { get => _objectList; }
         public List<LightSource> Lights { get => _lightList; }
-        public Color BackgroundColor = new Color(0, 0, 0);
+        public Color BackgroundColor;
 
-        public void Add(RenderableObject toAdd)
+        public World(): this(Color.Black) { }
+
+        public World(Color backgroundColor)
+        {
+            BackgroundColor = backgroundColor;
+        }
+
+        public World Add(RenderableObject toAdd)
         {
             _objectList.Add(toAdd);
+            return this;
         }
 
-        public void Add(LightSource toAdd)
+        public World AddRange(List<RenderableObject> toAdd)
+        {
+            _objectList.AddRange(toAdd);
+            return this;
+        }
+
+        public World Add(LightSource toAdd)
         {
             _lightList.Add(toAdd);
+            return this;
         }
 
-        public void TransformAllObjects(Matrix<double> m)
+        public World BuildKdTree()
         {
-            _objectList.ForEach(o => o.Transform(m));
+            KdTreeRoot = new KdTreeNode(_objectList, 0);
+            return this;
         }
 
         public Intersection? Spawn(Ray ray)
         {
-            Intersection? closestIntersection = null;
-
-            foreach (RenderableObject obj in _objectList)
+            if (KdTreeRoot != null)
             {
-                var intersection = obj.Intersect(ray);
-                if (intersection != null && (closestIntersection == null || closestIntersection.Omega > intersection.Omega))
-                {
-                    closestIntersection = intersection;
-                }
+                return KdTreeRoot.Traverse(ray, double.MaxValue);
             }
+            else
+            {
 
-            return closestIntersection;
+                Intersection? closestIntersection = null;
+
+                foreach (RenderableObject obj in _objectList)
+                {
+                    var intersection = obj.Intersect(ray);
+                    if (intersection != null && (closestIntersection == null || closestIntersection.Omega > intersection.Omega))
+                    {
+                        closestIntersection = intersection;
+                    }
+                }
+
+                return closestIntersection;
+            }
         }
     }
 }

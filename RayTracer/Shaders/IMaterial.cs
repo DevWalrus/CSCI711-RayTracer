@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using RayTracer.RayMath;
 
 namespace RayTracer.Shaders
 {

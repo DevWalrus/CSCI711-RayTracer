@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CA1416
-using System.Drawing;
+using RayTracer.RayMath;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace RayTracer.Shaders
 {
