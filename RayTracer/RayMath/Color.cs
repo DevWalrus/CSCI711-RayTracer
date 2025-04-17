@@ -55,6 +55,16 @@
             return m1 * c;
         }
 
+        public static Color operator /(Color m1, double c)
+        {
+            return new Color(m1.R / c, m1.G / c, m1.B / c);
+        }
+
+        public static Color operator /(double c, Color m1)
+        {
+            return m1 / c;
+        }
+
         public static Color operator +(Color m1, Color m2)
         {
             return new Color(m1.R + m2.R, m1.G + m2.G, m1.B + m2.B);

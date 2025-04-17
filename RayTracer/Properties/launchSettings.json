@@ -35,6 +35,10 @@
     "D-Tests": {
       "commandName": "Project",
       "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\ -t"
+    },
+    "D-Bunny (multi)": {
+      "commandName": "Project",
+      "commandLineArgs": "-p C:\\Users\\Clinten\\Documents\\Courses\\2245\\GlobalIllum\\RayTracer\\ -b -m"
     }
   }
 }

@@ -38,7 +38,8 @@ namespace RayTracer
             }
             else if(argSet.Contains("-b") || argSet.Contains("--bunny"))
             {
-                CreateBunny();
+                //CreateBunny();
+                CreatePiano();
             }
             else
             {
@@ -80,7 +81,7 @@ namespace RayTracer
             world.Add(reflectiveSphere);
 
             Stopwatch sw = Stopwatch.StartNew();
-            var bitmap = camera.render(world);
+            var bitmap = camera.Render(world);
             sw.Stop();
             Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
             PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Scene.ppm"), bitmap);
@@ -109,7 +110,7 @@ namespace RayTracer
             world.Add(bunny);
 
             Stopwatch sw = Stopwatch.StartNew();
-            var bitmap = camera.render(world);
+            var bitmap = camera.Render(world);
             sw.Stop();
             Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
             PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Bunny.ppm"), bitmap);
@@ -117,6 +118,35 @@ namespace RayTracer
 
             fileopener.StartInfo.FileName = "explorer";
             fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Bunny.ppm") + "\"";
+            fileopener.Start();
+        }
+
+        static void CreatePiano()
+        {
+            var camera = new Camera(new Point(0.8, 1.2, 0.2), new Point(-0.5, 0, -0.2), new MyVector(0, 1, 0), _isParallel);
+            camera.Supersample();
+
+            var world = new World(Color.SkyBlue);
+
+            var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
+
+            world.Add(lightSource);
+
+            var green = new ColorShader(Color.Green);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+
+            var piano = new MeshObject(ObjParser.ParseObjFile(Path.Combine(InputLocation, "Piano.obj"), greenPhong), greenPhong);
+            world.Add(piano);
+
+            Stopwatch sw = Stopwatch.StartNew();
+            var bitmap = camera.Render(world);
+            sw.Stop();
+            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
+            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Piano.ppm"), bitmap);
+            using Process fileopener = new Process();
+
+            fileopener.StartInfo.FileName = "explorer";
+            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Piano.ppm") + "\"";
             fileopener.Start();
         }
 
@@ -152,7 +182,7 @@ namespace RayTracer
                 world.Add(transparentSphere);
                 world.Add(reflectiveSphere);
 
-                var bitmap = camera.render(world);
+                var bitmap = camera.Render(world);
                 var fileName = $"Scene_DOF_{app.ToString().Replace(".", "_")}.ppm";
                 PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, fileName), bitmap);
                 //using Process fileopener = new Process();
