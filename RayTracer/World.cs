@@ -27,15 +27,15 @@ namespace RayTracer
             return this;
         }
 
-        public World Add(LightSource toAdd)
+        public World AddRange(List<RenderableObject> toAdd)
         {
-            _lightList.Add(toAdd);
+            _objectList.AddRange(toAdd);
             return this;
         }
 
-        public World TransformAllObjects(Matrix<double> m)
+        public World Add(LightSource toAdd)
         {
-            //_objectList.ForEach(o => o.Transform(m));
+            _lightList.Add(toAdd);
             return this;
         }
 

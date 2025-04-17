@@ -2,6 +2,7 @@
 using RayTracer.RayMath;
 using RayTracer.Shaders;
 using RayTracer.Utils;
+using System.Diagnostics;
 
 namespace RayTracer.Objects
 {
@@ -15,7 +16,10 @@ namespace RayTracer.Objects
         public MeshObject(List<Triangle> triangles, Material material) : base(material)
         {
             _triangles = triangles;
+            Stopwatch sw = Stopwatch.StartNew();
             _kdTree = new KdTreeNode([.. triangles]);
+            sw.Stop();
+            Console.WriteLine($"Object KD Tree Generation completed in: {sw.ElapsedMilliseconds} ms");
 
             Center = Point.Center([_kdTree.BoundingBox.Min, _kdTree.BoundingBox.Max]);
             BBMin = _kdTree.BoundingBox.Min;

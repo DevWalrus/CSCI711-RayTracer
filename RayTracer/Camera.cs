@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1416
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
@@ -222,7 +223,10 @@ namespace RayTracer
 
         public Bitmap render(World world)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             world.BuildKdTree();
+            sw.Stop();
+            Console.WriteLine($"KD Tree Generation completed in: {sw.ElapsedMilliseconds} ms");
             var pixelWidth = _filmPlaneWidth / _imageWidth;
             var pixelHeight = _filmPlaneHeight / _imageHeight;
 
@@ -260,6 +264,7 @@ namespace RayTracer
                 for (int y = 0; y < _imageHeight; y++)
                     for (int x = 0; x < _imageWidth; x++)
                     {
+                        //Console.WriteLine($"Spawning ({y}, {x})");
                         var (ix, iy, col) = spawnOnePixel(
                             topLeftPixel,
                             x, y,
