@@ -5,6 +5,8 @@ using RayTracer.Tests;
 using System.Diagnostics;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using RayTracer.Utils;
+using static RayTracer.ToneMapper;
+using System.Globalization;
 
 namespace RayTracer
 {
@@ -16,6 +18,9 @@ namespace RayTracer
         private static string OutputLocation = BaseLocation + OutputFolder;
         private static string InputLocation = BaseLocation + InputFolder;
         private static bool _isParallel = false;
+
+        private static double Ldmax = 100.0;
+        private static ToneOperator whichTR = ToneOperator.Ward;
 
         static void Main(string[] args)
         {
@@ -32,6 +37,15 @@ namespace RayTracer
                 InputLocation = Path.Combine(BaseLocation, InputFolder);
             }
 
+            var idxLd = Array.FindIndex(args, a => a == "-l" || a == "--ldmax");
+            if (idxLd != -1 && idxLd + 1 < args.Length)
+                Ldmax = double.Parse(args[idxLd + 1]);
+
+            var idxTr = Array.FindIndex(args, a => a == "-r" || a == "--tone");
+            if (idxTr != -1 && idxTr + 1 < args.Length &&
+                Enum.TryParse<ToneOperator>(args[idxTr + 1], true, out var op))
+                whichTR = op;
+
             if (argSet.Contains("-t") || argSet.Contains("--test"))
             {
                 TestRunner.RunAllTests(InputLocation);
@@ -47,6 +61,23 @@ namespace RayTracer
             }
         }
 
+        private static void RenderAndSave(Camera camera, World world, string fileName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            var bitmap = camera.Render(world);
+            sw.Stop();
+            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
+
+            var mapped = Map(bitmap, Ldmax, whichTR); // Tone mapping
+
+            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, fileName), mapped);
+            using Process fileopener = new Process();
+
+            fileopener.StartInfo.FileName = "explorer";
+            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, fileName) + "\"";
+            fileopener.Start();
+        }
+
         static void CreateRenderedImage()
         {
             var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), _isParallel);
@@ -54,7 +85,7 @@ namespace RayTracer
 
             var world = new World(Color.SkyBlue);
 
-            var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
+            var lightSource = new LightSource(new Point(0, 2, 1.5), Color.White);
 
             world.Add(lightSource);
 
@@ -80,16 +111,7 @@ namespace RayTracer
             world.Add(transparentSphere);
             world.Add(reflectiveSphere);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            var bitmap = camera.Render(world);
-            sw.Stop();
-            Console.WriteLine($"Render time: {sw.ElapsedMilliseconds} ms");
-            PPMWriter.WriteBitmapToPPM(Path.Combine(OutputLocation, "Scene.ppm"), bitmap);
-            using Process fileopener = new Process();
-
-            fileopener.StartInfo.FileName = "explorer";
-            fileopener.StartInfo.Arguments = "\"" + Path.Combine(OutputLocation, "Scene.ppm") + "\"";
-            fileopener.Start();
+            RenderAndSave(camera, world, "Scene.ppm");
         }
 
         static void CreateBunny()
