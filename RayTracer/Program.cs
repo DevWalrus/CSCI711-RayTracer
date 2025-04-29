@@ -3,10 +3,8 @@ using RayTracer.Objects;
 using RayTracer.Shaders;
 using RayTracer.Tests;
 using System.Diagnostics;
-using MathNet.Numerics.LinearAlgebra.Factorization;
 using RayTracer.Utils;
 using static RayTracer.ToneMapper;
-using System.Globalization;
 
 namespace RayTracer
 {
@@ -62,8 +60,8 @@ namespace RayTracer
             }
             else if(argSet.Contains("-b") || argSet.Contains("--bunny"))
             {
-                //CreateBunny();
-                CreatePiano();
+                CreateBunny();
+                //CreatePiano();
             }
             else
             {
