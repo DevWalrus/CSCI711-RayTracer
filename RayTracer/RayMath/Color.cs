@@ -70,6 +70,15 @@
             return new Color(m1.R + m2.R, m1.G + m2.G, m1.B + m2.B);
         }
 
+        public static Color operator *(Color c1, Color c2)
+        {
+            return new Color(
+                c1.R * c2.R,
+                c1.G * c2.G,
+                c1.B * c2.B
+            );
+        }
+
         public System.Drawing.Color ToSystemColor()
         {
             var r = Math.Min((int)(R * 255), 255);

@@ -49,7 +49,7 @@ namespace RayTracer.Shaders
                 if (shadowFactor > 0.0)
                 {
                     double nDotL = Math.Max(0, normal.Dot(toLight));
-                    Color diffuse = baseColor * (_kd * nDotL * shadowFactor);
+                    Color diffuse = baseColor * light.Color * (_kd * nDotL * shadowFactor);
                     MyVector reflection = (toLight * -1).Reflect(normal);
                     double rDotV = Math.Max(0, reflection.Dot(viewDir));
                     double specFactor = Math.Pow(rDotV, _shininess);

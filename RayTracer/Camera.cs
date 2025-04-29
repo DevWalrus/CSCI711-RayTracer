@@ -180,7 +180,6 @@ namespace RayTracer
 
         private Color SampleColor(Point pixelCenter, Random localRand, World world)
         {
-            // --- 2) LENS‑DOF sampling (unchanged) ---
             (double diskX, double diskY) = RandomInUnitDisk(localRand);
             diskX *= _apertureRadius;
             diskY *= _apertureRadius;
@@ -248,7 +247,7 @@ namespace RayTracer
             return (currentX, currentY, finalColor);
         }
 
-        public Bitmap Render(World world)
+        public Color[,] Render(World world)
         {
             Stopwatch sw = Stopwatch.StartNew();
             world.BuildKdTree();
@@ -263,7 +262,7 @@ namespace RayTracer
                  _focalDistance
             );
 
-            var bmp = new Bitmap(_imageWidth, _imageHeight);
+            var hdr = new Color[_imageWidth, _imageHeight];
             List<(int x, int y, Color color)> pixelResults = [];
             if (_parallel)
             {
@@ -300,10 +299,10 @@ namespace RayTracer
 
             foreach (var (x, y, col) in pixelResults)
             {
-                bmp.SetPixel(x, y, col.ToSystemColor());
+                hdr[x, y] = col;
             }
 
-            return bmp;
+            return hdr;
         }
     }
 }
