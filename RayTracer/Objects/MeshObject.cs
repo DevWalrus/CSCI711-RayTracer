@@ -10,10 +10,11 @@ namespace RayTracer.Objects
     {
         private readonly List<Triangle> _triangles;
         private KdTreeNode _kdTree;
+        private bool _lowPoly;  
 
         public List<Triangle> Triangles { get => _triangles; }
 
-        public MeshObject(List<Triangle> triangles, Material material) : base(material)
+        public MeshObject(List<Triangle> triangles, Material material, bool lowPoly = false) : base(material)
         {
             _triangles = triangles;
             Stopwatch sw = Stopwatch.StartNew();
@@ -24,12 +25,14 @@ namespace RayTracer.Objects
             Center = Point.Center([_kdTree.BoundingBox.Min, _kdTree.BoundingBox.Max]);
             BBMin = _kdTree.BoundingBox.Min;
             BBMax = _kdTree.BoundingBox.Max;
+
+            _lowPoly = lowPoly;
         }
 
         /// <inheritdoc/>
         public override Intersection? Intersect(Ray ray, double minIntersection = 0)
         {
-            var hit = _kdTree.Traverse(ray, double.MaxValue);
+            var hit = _kdTree.Traverse(ray, double.MaxValue, _lowPoly);
             if (hit != null && hit.Omega >= minIntersection)
             {
                 return hit;

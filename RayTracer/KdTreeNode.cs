@@ -39,11 +39,14 @@ namespace RayTracer
             Right = new KdTreeNode(rightObjects, depth + 1);
         }
 
-        public Intersection? Traverse(Ray ray, double closestHit)
+        public Intersection? Traverse(Ray ray, double closestHit, bool lowPoly = false)
         {
             // If the ray misses the bounding box, skip this node.
-            if (!BoundingBox.Intersect(ray, out double tMin, out double tMax) || tMin > closestHit)
+            var bbInt = BoundingBox.Intersect(ray, out double tMin, out double tMax);
+            if (bbInt == null || tMin > closestHit)
                 return null;
+
+            if (lowPoly) return bbInt;
 
             // If the node is a leaf, check all objects.
             if (IsLeaf)
@@ -64,8 +67,8 @@ namespace RayTracer
             // For internal nodes, compute which child's bounding box is hit first.
             double leftTMin = double.PositiveInfinity;
             double rightTMin = double.PositiveInfinity;
-            bool leftIntersects = Left != null && Left.BoundingBox.Intersect(ray, out leftTMin, out _);
-            bool rightIntersects = Right != null && Right.BoundingBox.Intersect(ray, out rightTMin, out _);
+            bool leftIntersects = Left != null && Left.BoundingBox.Intersect(ray, out leftTMin, out _) != null;
+            bool rightIntersects = Right != null && Right.BoundingBox.Intersect(ray, out rightTMin, out _) != null;
 
             Intersection? firstIntersection = null;
             Intersection? secondIntersection = null;

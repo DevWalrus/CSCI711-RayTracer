@@ -15,6 +15,8 @@ namespace RayTracer.Shaders
         public double Transparency { get; }
         public double IndexOfRefraction { get; }
 
+        public static Material Default = new PhongShader(0.1, 0.6, 0.3, 16, ColorShader.Green);
+
         public Material (double reflectivity, double transparency, double indexOfRefection)
         {
             Reflectivity = reflectivity;

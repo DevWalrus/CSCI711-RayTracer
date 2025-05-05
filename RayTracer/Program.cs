@@ -123,20 +123,21 @@ namespace RayTracer
 
         static void CreatePiano()
         {
-            var camera = new Camera(new Point(0.8, 1.2, 0.2), new Point(-0.5, 0, -0.2), new MyVector(0, 1, 0), _isParallel);
-            camera.Supersample();
-
             var world = new World(Color.SkyBlue);
 
             var lightSource = new LightSource(new Point(0, 5, 2.5), Color.White);
 
             world.Add(lightSource);
 
-            var green = new ColorShader(Color.Green);
-            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, green);
+            var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, ColorShader.Green);
 
             var piano = new MeshObject(ObjParser.ParseObjFile(Path.Combine(InputLocation, "Piano.obj"), greenPhong), greenPhong);
             world.Add(piano);
+
+            var camera = new Camera(new Point(0.6, 1.4, 0.2), new Point(-0.25, 0, 0.1), new MyVector(0, 1, 0), _isParallel);
+            camera.SetPinhole();
+            //camera.SetAperture(1.4);
+            //camera.Supersample();
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.Render(world);
@@ -155,8 +156,11 @@ namespace RayTracer
             foreach (var app in new List<double>{1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22})
             {
                 //Console.WriteLine(app);
-                var camera = new Camera(new Point(0, 0.5, 1), new Point(0, 0, -1), new MyVector(0, 1, 0), false);
-                camera.SetAperture(app);
+                var camera = new Camera(new Point(0, 0.5, 0.5), new Point(0, 0, -1), new MyVector(0, 1, 0), false);
+                camera.SetPinhole();
+                //camera.SetAperture(app);
+                //camera.Supersample();
+
 
                 var world = new World();
 

@@ -28,6 +28,15 @@ namespace RayTracer.RayMath
             );
         }
 
+        public Point At(double t)
+        {
+            return new Point(
+                Origin.X + t * Direction.X,
+                Origin.Y + t * Direction.Y,
+                Origin.Z + t * Direction.Z
+            );
+        }
+
         public override string ToString()
         {
             return $"Origin: {Origin}, Direction: {Direction}";

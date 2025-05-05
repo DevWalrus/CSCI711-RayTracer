@@ -29,7 +29,7 @@ namespace RayTracer
         private Point _cameraCoordsOrigin = new Point(0, 0, 0);
 
         private double _apertureRadius = 0.01;
-        private int _samplesPerPixel = 25;
+        private int _samplesPerPixel = 1;
         private bool _parallel;
         private static Random _rand = new Random();
 
@@ -85,7 +85,6 @@ namespace RayTracer
 
         public void Supersample()
         {
-            _apertureRadius = 0;
             _samplesPerPixel = 25;
             //_samplesPerPixel = 2;
         }

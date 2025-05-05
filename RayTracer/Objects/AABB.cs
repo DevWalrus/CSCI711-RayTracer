@@ -1,4 +1,5 @@
 ﻿using RayTracer.RayMath;
+using RayTracer.Shaders;
 
 namespace RayTracer.Objects
 {
@@ -33,12 +34,10 @@ namespace RayTracer.Objects
         /// <summary>
         /// Tests whether a given ray intersects the bounding box using the slab method.
         /// </summary>
-        public bool Intersect(Ray ray, out double tMin, out double tMax)
+        public Intersection? Intersect(Ray ray, out double tMin, out double tMax)
         {
             tMin = double.MinValue;
             tMax = double.MaxValue;
-
-            // X-axis slab
             if (ray.Direction.X != 0)
             {
                 double tx1 = (Min.X - ray.Origin.X) / ray.Direction.X;
@@ -48,12 +47,8 @@ namespace RayTracer.Objects
                 tMin = Math.Max(tMin, tMinX);
                 tMax = Math.Min(tMax, tMaxX);
             }
-            else if (ray.Origin.X < Min.X || ray.Origin.X > Max.X)
-            {
-                return false;
-            }
+            else if (ray.Origin.X < Min.X || ray.Origin.X > Max.X) return null;
 
-            // Y-axis slab
             if (ray.Direction.Y != 0)
             {
                 double ty1 = (Min.Y - ray.Origin.Y) / ray.Direction.Y;
@@ -63,12 +58,8 @@ namespace RayTracer.Objects
                 tMin = Math.Max(tMin, tMinY);
                 tMax = Math.Min(tMax, tMaxY);
             }
-            else if (ray.Origin.Y < Min.Y || ray.Origin.Y > Max.Y)
-            {
-                return false;
-            }
+            else if (ray.Origin.Y < Min.Y || ray.Origin.Y > Max.Y) return null;
 
-            // Z-axis slab
             if (ray.Direction.Z != 0)
             {
                 double tz1 = (Min.Z - ray.Origin.Z) / ray.Direction.Z;
@@ -78,12 +69,27 @@ namespace RayTracer.Objects
                 tMin = Math.Max(tMin, tMinZ);
                 tMax = Math.Min(tMax, tMaxZ);
             }
-            else if (ray.Origin.Z < Min.Z || ray.Origin.Z > Max.Z)
-            {
-                return false;
-            }
+            else if (ray.Origin.Z < Min.Z || ray.Origin.Z > Max.Z) return null;
 
-            return tMax >= tMin && tMax >= 0;
+            if (tMax < tMin || tMax < 0)
+                return null;
+
+            double tHit = tMin >= 0 ? tMin : tMax;
+            Point hitPos = ray.At(tHit);
+            MyVector normal = ComputeNormal(hitPos);
+
+            return new Intersection(tHit, hitPos, normal, Material.Default);
+        }
+
+        private MyVector ComputeNormal(Point hit)
+        {
+            const double epsilon = 1e-5;
+            if (Math.Abs(hit.X - Min.X) < epsilon) return new MyVector(-1, 0, 0);
+            if (Math.Abs(hit.X - Max.X) < epsilon) return new MyVector(1, 0, 0);
+            if (Math.Abs(hit.Y - Min.Y) < epsilon) return new MyVector(0, -1, 0);
+            if (Math.Abs(hit.Y - Max.Y) < epsilon) return new MyVector(0, 1, 0);
+            if (Math.Abs(hit.Z - Min.Z) < epsilon) return new MyVector(0, 0, -1);
+            return new MyVector(0, 0, 1); // Max.Z
         }
     }
 }

@@ -727,7 +727,7 @@ namespace RayTracer.Tests
             MyVector direction = new MyVector(1, 0, 0);
             Ray ray = new Ray(rayOrigin, direction);
 
-            bool intersects = box.Intersect(ray, out double tMin, out double tMax);
+            bool intersects = box.Intersect(ray, out double tMin, out double tMax) != null; // TODO: actually test intersection
 
             IsTrue(intersects);
             // Expect tMin to be 1 (exactly hitting the face at x=0) within some tolerance.
@@ -746,7 +746,7 @@ namespace RayTracer.Tests
             MyVector direction = new MyVector(0, 1, 0);
             Ray ray = new Ray(rayOrigin, direction);
 
-            bool intersects = box.Intersect(ray, out double tMin, out double tMax);
+            bool intersects = box.Intersect(ray, out double tMin, out double tMax) != null; //TODO: actually test intersection
 
             IsFalse(intersects);
         }
