@@ -9,7 +9,9 @@ namespace RayTracer.Shaders
     /// </summary>
     public class ImageShader : Material
     {
-        private readonly Bitmap _texture;
+        private Color[,] _pixelBuffer;
+        private int width => _pixelBuffer.GetLength(0);
+        private int height => _pixelBuffer.GetLength(1);
         private readonly double _scale;
         /// <summary>
         /// Initializes a new instance of the <see cref="CheckerboardShader"/> class with the specified square colors and an optional scale factor.
@@ -25,7 +27,15 @@ namespace RayTracer.Shaders
             double indexOfRefraction = 0
         ) : base(reflectivity, transparency, indexOfRefraction)
         {
-            _texture = new Bitmap(imagePath);
+            var bmp = new Bitmap(imagePath);
+            _pixelBuffer = new Color[bmp.Width, bmp.Height];
+            for (int y = 0; y < bmp.Height; y++)
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    var px = bmp.GetPixel(x, y);
+                    _pixelBuffer[x, y] = new Color(px.R, px.G, px.B);
+                }
+            bmp.Dispose(); // release file handle
             _scale = scale;
         }
 
@@ -38,13 +48,13 @@ namespace RayTracer.Shaders
             if (u < 0) u += 1.0;
             if (v < 0) v += 1.0;
 
-            int xPixel = (int)(u * _texture.Width);
-            int yPixel = (int)(v * _texture.Height);
+            int xPixel = (int)(u * width);
+            int yPixel = (int)(v * height);
 
-            if (xPixel >= _texture.Width) xPixel = _texture.Width - 1;
-            if (yPixel >= _texture.Height) yPixel = _texture.Height - 1;
+            if (xPixel >= width) xPixel = width - 1;
+            if (yPixel >= height) yPixel = height - 1;
 
-            System.Drawing.Color pixelColor = _texture.GetPixel(xPixel, yPixel);
+            var pixelColor = _pixelBuffer[xPixel, yPixel];
 
             // right after you read pixelColor.R/G/B:
             double sr = pixelColor.R / 255.0,

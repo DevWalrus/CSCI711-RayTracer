@@ -203,14 +203,11 @@ namespace RayTracer.Utils
             double reflectivity = ks.Luminance();
             double transparency = 1 - d;
             return new PhongShader(
-                (ka.R + ka.G + ka.B) / 3,
-                (kd.R + kd.G + kd.B) / 3,
-                reflectivity,
-                ns,
-                baseShader,
-                reflectivity,
-                transparency,
-                ni
+                0.1, 
+                0.6,
+                0.3,
+                16,
+                baseShader
             );
         }
 

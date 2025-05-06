@@ -26,9 +26,9 @@ namespace RayTracer
         private Point _cameraCoordsOrigin = new Point(0, 0, 0);
 
         private double _apertureRadius = 0.01;
+        private int _aliasingSamplesPerPixel = 1;
         private int _samplesPerPixel = 1;
         private bool _parallel;
-        private static Random _rand = new Random();
 
         public Camera(Point position, Point lookAt, MyVector up, bool parallel)
         {
@@ -72,6 +72,7 @@ namespace RayTracer
         {
             double focalLength = 0.028;
             _apertureRadius = focalLength / (2 * fStop);
+            _samplesPerPixel = 10;
         }
 
         public void SetPinhole()
@@ -81,7 +82,7 @@ namespace RayTracer
 
         public void Supersample()
         {
-            _samplesPerPixel = 100;
+            _aliasingSamplesPerPixel = 10;
         }
 
         private Color TraceRay(Ray ray, World world, int depth)
@@ -176,34 +177,40 @@ namespace RayTracer
 
         private Color SampleColor(Point pixelCenter, Random localRand, World world)
         {
-            // --- 2) LENS‑DOF sampling (unchanged) ---
-            (double diskX, double diskY) = RandomInUnitDisk(localRand);
-            diskX *= _apertureRadius;
-            diskY *= _apertureRadius;
+            Color accumulatedColor = Color.Black;
 
-            var lensOrigin = new Point(
-                _cameraCoordsOrigin.X + diskX,
-                _cameraCoordsOrigin.Y + diskY,
-                _cameraCoordsOrigin.Z
-            );
+            for (int sample = 0; sample < _samplesPerPixel; sample++)
+            {
+                (double diskX, double diskY) = RandomInUnitDisk(localRand);
+                diskX *= _apertureRadius;
+                diskY *= _apertureRadius;
 
-            var idealDir = pixelCenter
-                .Subtract(_cameraCoordsOrigin)
-                .Normalize();
+                var lensOrigin = new Point(
+                    _cameraCoordsOrigin.X + diskX,
+                    _cameraCoordsOrigin.Y + diskY,
+                    _cameraCoordsOrigin.Z
+                );
 
-            var focalPoint = new Point(
-                _cameraCoordsOrigin.X + idealDir.X * Math.Abs(_focalDistance),
-                _cameraCoordsOrigin.Y + idealDir.Y * Math.Abs(_focalDistance),
-                _cameraCoordsOrigin.Z + idealDir.Z * Math.Abs(_focalDistance)
-            );
+                var idealDir = pixelCenter
+                    .Subtract(_cameraCoordsOrigin)
+                    .Normalize();
 
-            var newDir = focalPoint
-                .Subtract(lensOrigin)
-                .Normalize();
+                var focalPoint = new Point(
+                    _cameraCoordsOrigin.X + idealDir.X * Math.Abs(_focalDistance),
+                    _cameraCoordsOrigin.Y + idealDir.Y * Math.Abs(_focalDistance),
+                    _cameraCoordsOrigin.Z + idealDir.Z * Math.Abs(_focalDistance)
+                );
 
-            var ray = new Ray(lensOrigin, newDir);
+                var newDir = focalPoint
+                    .Subtract(lensOrigin)
+                    .Normalize();
 
-            return TraceRay(ray.Transform(CamToWorld), world, 0);
+                var ray = new Ray(lensOrigin, newDir);
+
+                accumulatedColor += TraceRay(ray.Transform(CamToWorld), world, 0);
+            }
+
+            return accumulatedColor / _samplesPerPixel;
         }
 
         private (int x, int y, Color color) SpawnOnePixel(
@@ -219,9 +226,8 @@ namespace RayTracer
 
             var localRand = new Random(currentX + currentY * 800 + Environment.TickCount);
 
-            for (int sample = 0; sample < _samplesPerPixel; sample++)
+            for (int sample = 0; sample < _aliasingSamplesPerPixel; sample++)
             {
-                // --- 1) SUB‑PIXEL JITTER for anti‑aliasing ---
                 double jitterX, jitterY;
                 if (sample == 0)
                 {
@@ -240,7 +246,7 @@ namespace RayTracer
                 accumulatedColor += SampleColor(pixelCenter, localRand, world);
             }
 
-            var finalColor = accumulatedColor / _samplesPerPixel;
+            var finalColor = accumulatedColor / _aliasingSamplesPerPixel;
             return (currentX, currentY, finalColor);
         }
 

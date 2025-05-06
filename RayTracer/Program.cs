@@ -157,9 +157,9 @@ namespace RayTracer
                 floorPhong);
             world.Add(rightSidePlane).Add(leftSidePlane);
 
-            var camera = new Camera(new Point(0.6, 1.1, 0.2), new Point(-0.25, 0.25, 0.1), new MyVector(0, 1, 0), _isParallel);
-            camera.SetPinhole();
-            //camera.SetAperture(1.4);
+            var camera = new Camera(new Point(0.6, 1.1, 0.2), new Point(-0.25, 0.25, 0.1), new MyVector(0, 1, 0), true);
+            //camera.SetPinhole();
+            camera.SetAperture(1.4);
             camera.Supersample();
 
             Stopwatch sw = Stopwatch.StartNew();
