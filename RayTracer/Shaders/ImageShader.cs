@@ -32,8 +32,8 @@ namespace RayTracer.Shaders
         /// <inheritdoc/>>
         public override Color Shade(ShadingContext shading, World world)
         {
-            double u = shading.LocalPosition.X / _scale % 1.0;
-            double v = shading.LocalPosition.Z / _scale % 1.0;
+            double u = shading.U * _scale % 1.0;
+            double v = -(shading.V * _scale % 1.0);
 
             if (u < 0) u += 1.0;
             if (v < 0) v += 1.0;
@@ -46,11 +46,15 @@ namespace RayTracer.Shaders
 
             System.Drawing.Color pixelColor = _texture.GetPixel(xPixel, yPixel);
 
-            double r = pixelColor.R / 255.0;
-            double g = pixelColor.G / 255.0;
-            double b = pixelColor.B / 255.0;
-
-            return new Color(r, g, b);
+            // right after you read pixelColor.R/G/B:
+            double sr = pixelColor.R / 255.0,
+                   sg = pixelColor.G / 255.0,
+                   sb = pixelColor.B / 255.0;
+            // decode to linear:
+            double lr = Math.Pow(sr, 2.2),
+                   lg = Math.Pow(sg, 2.2),
+                   lb = Math.Pow(sb, 2.2);
+            return new Color(lr, lg, lb);
         }
     }
 }

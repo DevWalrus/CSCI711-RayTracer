@@ -117,7 +117,10 @@ namespace RayTracer.Tests
         {
             // Given
             var ray = new Ray(new Point(0, 0, 0), new MyVector(1, 0, 0).Normalize());
-            var triangle = new Triangle([new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], new MyVector(0, 1, 0), WHITE_MAT);
+            var triangle = new Triangle(
+                [new Point(5, 1, 1), new Point(5, -1, -1), new Point(5, 0, -1)], 
+                new MyVector(0, 1, 0), 
+                WHITE_MAT);
 
             // When
             var intersection = triangle.Intersect(ray);

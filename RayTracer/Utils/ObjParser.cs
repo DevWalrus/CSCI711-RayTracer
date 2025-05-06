@@ -9,18 +9,30 @@ namespace RayTracer.Utils
     {
         /// <summary>
         /// Parses a Wavefront .obj file (ASCII only), triangulates faces,
-        /// and returns a list of Triangle objects all using the given defaultMaterial.
-        /// Later you can hook up `usemtl` to swap materials per‐object.
+        /// and returns a list of Triangle objects using materials from the supplied map.
         /// </summary>
-        public static List<Triangle> ParseObjFile(string filePath, Material defaultMaterial)
+        public static List<Triangle> ParseObjFile(
+            string filePath,
+            Material defaultMaterial)
         {
             var vertices = new List<Point>();
             var normals = new List<MyVector>();
+            var uvs = new List<(float U, float V)>();
             var triangles = new List<Triangle>();
             var culture = CultureInfo.InvariantCulture;
+            var materialMap = new Dictionary<string, Material>();
+            var dir = Path.GetDirectoryName(filePath) ?? string.Empty;
 
-            // currentMaterial = defaultMaterial for now,
-            // in future you can switch it when you see "usemtl"
+            foreach (var line in File.ReadLines(filePath))
+            {
+                if (line.StartsWith("mtllib "))
+                {
+                    materialMap = ParseMtlFile(Path.Join(dir, line.Split(' ')[1]), defaultMaterial);
+                    break;
+                }
+            }
+
+            // start with default
             Material currentMaterial = defaultMaterial;
             bool hasNormals = false;
 
@@ -49,35 +61,43 @@ namespace RayTracer.Utils
                         hasNormals = true;
                         break;
 
+                    case "vt":
+                        // texture coordinate
+                        float u = float.Parse(parts[1], culture);
+                        float v = float.Parse(parts[2], culture);
+                        uvs.Add((u, v));
+                        break;
+
                     case "usemtl":
-                        // TODO: in the future load or switch currentMaterial by name
-                        // string mtlName = parts[1];
+                        // switch material if in map
+                        var name = parts.Length > 1 ? parts[1] : null;
+                        if (name != null && materialMap.TryGetValue(name, out var mat))
+                            currentMaterial = mat;
+                        else
+                            currentMaterial = defaultMaterial;
                         break;
 
                     case "f":
-                        // face: could be "f v1 v2 v3 ..." or "f v1/vt1/vn1 ..." etc.
-                        var idxs = parts
-                            .Skip(1)
-                            .Select(p =>
-                            {
-                                var comps = p.Split('/');
-                                int vi = int.Parse(comps[0], culture) - 1;
-                                int ni = (comps.Length >= 3 && !string.IsNullOrEmpty(comps[2]))
-                                         ? int.Parse(comps[2], culture) - 1
-                                         : -1;
-                                return (vi, ni);
+                        // face: v/vt/vn
+                        var idxs = parts.Skip(1)
+                            .Select(p => {
+                                var c = p.Split('/');
+                                int vi = int.Parse(c[0]) - 1;
+                                int ti = (c.Length > 1 && c[1] != "") ? int.Parse(c[1]) - 1 : -1;
+                                int ni = (c.Length > 2 && c[2] != "") ? int.Parse(c[2]) - 1 : -1;
+                                return (vi, ti, ni);
                             })
                             .ToList();
 
                         if (idxs.Count < 3)
                             break;
 
-                        // triangulate fan: (0, i, i+1)
+                        // triangulate fan
                         for (int i = 1; i < idxs.Count - 1; i++)
                         {
-                            var (i0, n0) = idxs[0];
-                            var (i1, n1) = idxs[i];
-                            var (i2, n2) = idxs[i + 1];
+                            var (i0, ti0, n0) = idxs[0];
+                            var (i1, ti1, n1) = idxs[i];
+                            var (i2, ti2, n2) = idxs[i + 1];
 
                             var v0 = vertices[i0];
                             var v1 = vertices[i1];
@@ -86,7 +106,7 @@ namespace RayTracer.Utils
                             MyVector normal;
                             if (hasNormals && n0 >= 0 && n1 >= 0 && n2 >= 0)
                             {
-                                // average the per‐vertex normals
+                                // average normals
                                 normal = (normals[n0] + normals[n1] + normals[n2]) / 3f;
                                 normal = normal.Normalize();
                             }
@@ -95,7 +115,15 @@ namespace RayTracer.Utils
                                 normal = ComputeNormal(v0, v1, v2);
                             }
 
-                            triangles.Add(new Triangle([v0, v1, v2], normal, currentMaterial));
+                            var uv0 = ti0 >= 0 ? uvs[ti0] : (0f, 0f);
+                            var uv1 = ti1 >= 0 ? uvs[ti1] : (0f, 0f);
+                            var uv2 = ti2 >= 0 ? uvs[ti2] : (0f, 0f);
+
+                            triangles.Add(new Triangle(
+                              [vertices[i0], vertices[i1], vertices[i2]],
+                              [uv0, uv1, uv2],
+                              normal,
+                              currentMaterial));
                         }
                         break;
                 }
@@ -110,5 +138,81 @@ namespace RayTracer.Utils
             var e2 = new MyVector(v0, v2);
             return e1.Cross(e2).Normalize();
         }
+
+        private static Dictionary<string, Material> ParseMtlFile(string mtlPath, Material defaultMaterial)
+        {
+            var map = new Dictionary<string, Material>(StringComparer.OrdinalIgnoreCase);
+            string? name = null;
+            var ka = new Color(1, 1, 1);
+            var kd = new Color(1, 1, 1);
+            var ks = new Color(1, 1, 1);
+            double ns = 1, ni = 1, d = 1;
+            string? tex = null;
+            var dir = Path.GetDirectoryName(mtlPath) ?? string.Empty;
+
+            foreach (var raw in File.ReadLines(mtlPath))
+            {
+                var line = raw.Trim();
+                if (line.Length == 0 || line.StartsWith("#")) continue;
+                var parts = line.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                switch (parts[0].ToLowerInvariant())
+                {
+                    case "newmtl":
+                        if (name != null)
+                            map[name] = CreateMaterial(ka, kd, ks, ns, ni, d, tex, defaultMaterial);
+                        name = parts[1];
+                        ka = kd = ks = new Color(1, 1, 1);
+                        ns = ni = d = 1;
+                        tex = null;
+                        break;
+                    case "ka":
+                        var ac = parts[1].Split(' ');
+                        ka = new Color(float.Parse(ac[0]), float.Parse(ac[1]), float.Parse(ac[2]));
+                        break;
+                    case "kd":
+                        var dc = parts[1].Split(' ');
+                        kd = new Color(float.Parse(dc[0]), float.Parse(dc[1]), float.Parse(dc[2]));
+                        break;
+                    case "ks":
+                        var sc = parts[1].Split(' ');
+                        ks = new Color(float.Parse(sc[0]), float.Parse(sc[1]), float.Parse(sc[2]));
+                        break;
+                    case "ns": ns = double.Parse(parts[1]); break;
+                    case "ni": ni = double.Parse(parts[1]); break;
+                    case "d": d = double.Parse(parts[1]); break;
+                    case "map_kd":
+                        var rawPath = parts[1].Trim('"');
+                        var fileName = Path.GetFileName(rawPath);
+                        tex = Path.Combine(dir, fileName);
+                        break;
+                }
+            }
+            if (name != null)
+                map[name] = CreateMaterial(ka, kd, ks, ns, ni, d, tex, defaultMaterial);
+            return map;
+        }
+
+        private static Material CreateMaterial(
+            Color ka, Color kd, Color ks, double ns,
+            double ni, double d, string? texPath,
+            Material defaultMat)
+        {
+            Material baseShader = new ColorShader(kd);
+            if (!string.IsNullOrEmpty(texPath))
+                baseShader = new ImageShader(texPath, scale: 1);
+            double reflectivity = ks.Luminance();
+            double transparency = 1 - d;
+            return new PhongShader(
+                (ka.R + ka.G + ka.B) / 3,
+                (kd.R + kd.G + kd.B) / 3,
+                reflectivity,
+                ns,
+                baseShader,
+                reflectivity,
+                transparency,
+                ni
+            );
+        }
+
     }
 }

@@ -72,11 +72,19 @@
 
         public System.Drawing.Color ToSystemColor()
         {
-            var r = Math.Min((int)(R * 255), 255);
-            var g = Math.Min((int)(G * 255), 255);
-            var b = Math.Min((int)(B * 255), 255);
-            var sysC = System.Drawing.Color.FromArgb(255, r, g, b);
-            return sysC;
+            double gamma = 1.0 / 2.2;
+            int r = (int)(Math.Pow(Math.Clamp(R, 0, 1), gamma) * 255);
+            int g = (int)(Math.Pow(Math.Clamp(G, 0, 1), gamma) * 255);
+            int b = (int)(Math.Pow(Math.Clamp(B, 0, 1), gamma) * 255);
+            return System.Drawing.Color.FromArgb(255, r, g, b);
+        }
+
+        /// <summary>
+        /// Needed for the material mapping stuff for the piano
+        /// </summary>
+        public double Luminance()
+        {
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
         }
     }
 }

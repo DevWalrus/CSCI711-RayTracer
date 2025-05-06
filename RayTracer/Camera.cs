@@ -1,8 +1,5 @@
 ﻿#pragma warning disable CA1416
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using RayTracer.RayMath;
@@ -80,13 +77,11 @@ namespace RayTracer
         public void SetPinhole()
         {
             _apertureRadius = 0;
-            _samplesPerPixel = 1;
         }
 
         public void Supersample()
         {
-            _samplesPerPixel = 25;
-            //_samplesPerPixel = 2;
+            _samplesPerPixel = 100;
         }
 
         private Color TraceRay(Ray ray, World world, int depth)
@@ -112,7 +107,9 @@ namespace RayTracer
                 WorldPosition = intersection.Position,
                 LocalPosition = localPoint,
                 Normal = intersection.Normal,
-                ViewDirection = viewDir
+                ViewDirection = viewDir,
+                U = intersection.UV.U,
+                V = intersection.UV.V
             };
 
             var localColor = intersection.Material.Shade(shadingInfo, world);

@@ -23,5 +23,7 @@ namespace RayTracer.Shaders
         /// The direction from the intersection point to the camera, in world space.
         /// </summary>
         public MyVector ViewDirection;
+        public float U;
+        public float V;
     }
 }

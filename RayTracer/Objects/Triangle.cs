@@ -8,6 +8,7 @@ namespace RayTracer.Objects
     public class Triangle : RenderableObject
     {
         private readonly List<Point> _vertices;
+        private readonly (float U, float V)[] _uvs;
         private MyVector _normal;
 
         public Point A { get => _vertices[0]; }
@@ -15,7 +16,19 @@ namespace RayTracer.Objects
         public Point C { get => _vertices[2]; }
 
         public Triangle(
-            List<Point> verticies, 
+            List<Point> verticies,
+            MyVector normal,
+            Material material
+        ) : this(
+            verticies,
+            [(0, 0), (0, 0), (0, 0)],
+            normal,
+            material
+        ) { }
+
+        public Triangle(
+            List<Point> verticies,
+            (float U, float V)[] uvs,
             MyVector normal, 
             Material material
         ) : base(
@@ -26,6 +39,7 @@ namespace RayTracer.Objects
         )
         {
             _vertices = verticies;
+            _uvs = uvs;
             _normal = normal;
         }
 
@@ -53,6 +67,13 @@ namespace RayTracer.Objects
 
             if ((u < 0) || (v < 0) || (u + v) > 1) return null; // intersection point is outside of triangle
 
+            float w0 = 1f - (float)u - (float)v;
+            var (u0, v0) = _uvs[0];
+            var (u1, v1) = _uvs[1];
+            var (u2, v2) = _uvs[2];
+            float finalU = w0 * u0 + (float)u * u1 + (float)v * u2;
+            float finalV = w0 * v0 + (float)u * v1 + (float)v * v2;
+
             if (omega >= minIntersection)
             {
                 var intersectionPoint = new Point(
@@ -61,7 +82,12 @@ namespace RayTracer.Objects
                     ray.Origin.Z + ray.Direction.Z * omega
                 );
 
-                return new Intersection(omega, intersectionPoint, _normal, Material);
+                return new Intersection(
+                    omega, 
+                    intersectionPoint, 
+                    _normal, 
+                    Material,
+                    uv: (finalU, finalV));
             }
 
             return null;

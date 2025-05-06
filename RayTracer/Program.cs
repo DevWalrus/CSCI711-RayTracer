@@ -72,8 +72,16 @@ namespace RayTracer
             var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
             var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.525), 0.15, silverPhong);
 
-            var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), floorPhong);
-            var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), floorPhong);
+            var rightSidePlane = new Triangle(
+                [new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)],
+                [(0, 0), (1, 0), (0, 1)],
+                new MyVector(0, 0, 1), 
+                floorPhong);
+            var leftSidePlane = new Triangle(
+                [new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)],
+                [(1, 0), (0, 1), (1, 1)], 
+                new MyVector(0, 0, 1), 
+                floorPhong);
             
             world.Add(rightSidePlane);
             world.Add(leftSidePlane);
@@ -130,14 +138,29 @@ namespace RayTracer
             world.Add(lightSource);
 
             var greenPhong = new PhongShader(0.1, 0.6, 0.3, 16, ColorShader.Green);
+            var floor = new ImageShader(Path.Combine(InputLocation, "carpet.jpg"), 5);
+            var floorPhong = new PhongShader(0.3, 0.6, 0.1, 16, floor);
 
             var piano = new MeshObject(ObjParser.ParseObjFile(Path.Combine(InputLocation, "Piano.obj"), greenPhong), greenPhong);
             world.Add(piano);
 
-            var camera = new Camera(new Point(0.6, 1.4, 0.2), new Point(-0.25, 0, 0.1), new MyVector(0, 1, 0), _isParallel);
+            var floorHeight = 0d;
+            var rightSidePlane = new Triangle(
+                [new Point(1, floorHeight, 1), new Point(-1, floorHeight, 1), new Point(1, floorHeight, -1)],
+                [(1, 1), (0, 1), (1, 0)], 
+                new MyVector(0, 0, 1), 
+                floorPhong);
+            var leftSidePlane = new Triangle(
+                [new Point(-1, floorHeight, 1), new Point(1, floorHeight, -1), new Point(-1, floorHeight, -1)],
+                [(0, 1), (1, 0), (0, 0)],
+                new MyVector(0, 0, 1), 
+                floorPhong);
+            world.Add(rightSidePlane).Add(leftSidePlane);
+
+            var camera = new Camera(new Point(0.6, 1.1, 0.2), new Point(-0.25, 0.25, 0.1), new MyVector(0, 1, 0), _isParallel);
             camera.SetPinhole();
             //camera.SetAperture(1.4);
-            //camera.Supersample();
+            camera.Supersample();
 
             Stopwatch sw = Stopwatch.StartNew();
             var bitmap = camera.Render(world);
@@ -156,7 +179,7 @@ namespace RayTracer
             foreach (var app in new List<double>{1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22})
             {
                 //Console.WriteLine(app);
-                var camera = new Camera(new Point(0, 0.5, 0.5), new Point(0, 0, -1), new MyVector(0, 1, 0), false);
+                var camera = new Camera(new Point(0, 0.5, 0.5), new Point(0, 0, -1), new MyVector(0, 1, 0), true);
                 camera.SetPinhole();
                 //camera.SetAperture(app);
                 //camera.Supersample();
@@ -178,8 +201,16 @@ namespace RayTracer
                 var transparentSphere = new Sphere(new Point(0, 0.4, -0.3), 0.2, greenPhong);
                 var reflectiveSphere = new Sphere(new Point(0.2, 0.2, -0.5), 0.15, bluePhong);
 
-                var rightSidePlane = new Triangle([new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
-                var leftSidePlane = new Triangle([new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)], new MyVector(0, 0, 1), checkerboardPhong);
+                var rightSidePlane = new Triangle(
+                    [new Point(1, 0, 1), new Point(-0.55, 0, 1), new Point(1, 0, -10)],
+                    [(1, 0), (0, 1), (1, 1)],
+                    new MyVector(0, 0, 1), 
+                    checkerboardPhong);
+                var leftSidePlane = new Triangle(
+                    [new Point(-0.55, 0, 1), new Point(1, 0, -10), new Point(-0.55, 0, -10)],
+                    [(1, 0), (0, 1), (1, 1)],
+                    new MyVector(0, 0, 1), 
+                    checkerboardPhong);
 
                 world.Add(rightSidePlane);
                 world.Add(leftSidePlane);

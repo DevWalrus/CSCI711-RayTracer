@@ -10,12 +10,18 @@ namespace RayTracer.RayMath
         public MyVector Normal { get; }
         public Material Material { get; }
 
-        public Intersection(double omega, Point position, MyVector normal, Material material)
+        public readonly (float U, float V) UV;
+
+        public Intersection(double omega, Point position, MyVector normal, Material material): 
+            this(omega, position, normal, material, (0, 0)) { }
+
+        public Intersection(double omega, Point position, MyVector normal, Material material, (float U, float V) uv)
         {
             Omega = omega;
             Position = position;
             Normal = normal.Normalize();
             Material = material;
+            UV = uv;
         }
 
         public override string ToString()
